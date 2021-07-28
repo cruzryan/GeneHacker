@@ -1,3 +1,0 @@
-//Installer setup
-
-package main

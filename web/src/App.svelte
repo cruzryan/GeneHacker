@@ -1,6 +1,7 @@
 <script>
 	import {current_screen} from "./store";
 	import Home from "./home/Home.svelte";
+	import Editor from "./editor/Editor.svelte";
 	let current_screen_value;
 
 	current_screen.subscribe(value => {
@@ -12,8 +13,10 @@
 <main>
 	{#if current_screen_value == "HOME"}
 	<Home/>
-	{:else}
-	<div></div>
+	{/if}
+
+	{#if current_screen_value == "EDITOR"}
+	<Editor/>
 	{/if}
 </main>
 

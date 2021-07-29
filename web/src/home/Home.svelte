@@ -1,10 +1,17 @@
 <script>
-	// export let name;
+	import Project from "./Project.svelte";
 	let gh_icon_monochrome = "./gh_icon_monochrome.png";
+
+	import { getData } from "../store";
+
+	let settings = JSON.parse(getData("settings"));
+	console.log(settings);
+
+	let number_of_projs = settings.project_paths.length;
+
 </script>
 
 <main>
-
 	<div class="sidebar">
 		<div class="sidebar-logo">
 			<img src={gh_icon_monochrome} alt="monochrome logo"/>
@@ -46,7 +53,7 @@
 		<div class="projects-info">	
 			<div class="projects-info-circle"></div>
 			<h1 class="projects-info-title">Projects</h1>
-			<h1 class="projects-info-number">4</h1>
+			<h1 class="projects-info-number">{number_of_projs}</h1>
 		</div>
 
 		<div class="projects-list">
@@ -54,10 +61,10 @@
 				<h1 class="project-letter">+</h1>
 				<h1 class="project-title">New Project</h1>
 			</div>
-			<div class="project">
-				<h1 class="project-letter">S</h1>
-				<h1 class="project-title">Sars-Cov-2</h1>
-			</div>
+
+			{#each settings.project_paths as proj, i}
+				<Project key={i} name={proj.name} path={proj.path}/>
+			{/each}
 		</div>
 	</div>
 
@@ -73,9 +80,10 @@
 	}
 
 	.sidebar{
+		position: fixed;
 		width: 7vw;
 		height: 100vh;
-		box-shadow: 0px 0px 5px rgb(133, 133, 133);
+		box-shadow: 0px 0px 5px rgb(214, 214, 214);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -106,6 +114,7 @@
 	}
 
 	.projects{
+		margin-left: 7vw;
 		width: 93vw;
 		height: 100vh;
 		background-color: #FCFCFC;
@@ -113,9 +122,11 @@
 
 	}
 	.search{
+		position: fixed;
 		width: 100%;
 		height: 10vh;
 		border-bottom: 1px solid #F2F2F2;
+		background-color: #FCFCFC;
 
 		display: flex;
 		flex-direction: row;
@@ -141,7 +152,7 @@
 		flex-direction: row;
 		align-items: center;
 		margin-left: 5vw;
-		margin-top: 5vh;
+		margin-top: 15vh;
 	}
 
 	.projects-info-circle{
@@ -166,7 +177,9 @@
 
 	.projects-list{
 		display: flex;
+		flex-wrap: wrap;
 		flex-direction: row;
+		height: auto;
 	}
 
 	.project{

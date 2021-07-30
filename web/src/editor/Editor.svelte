@@ -1,5 +1,6 @@
 <script>
     import Tab from "./Tab.svelte"
+    import Plasmid from "./plasmid/Plasmid.svelte"
 </script>
 
 <main>
@@ -14,12 +15,10 @@
         <div class="window">
             <div class="tabs hide-native-scrollbar">
                 <Tab active={true} text="Yeast with milk" icon_type="plasmid"/>
-                <Tab text="Yeast with milk" icon_type="plasmid"/>
-                <Tab text="Yeast with milk" icon_type="plasmid"/>
-                <Tab text="Yeast with milk" icon_type="plasmid"/>
             </div>
 
             <div class="panel">
+                <Plasmid/>
             </div>
         </div>
         <div class="window">
@@ -83,8 +82,7 @@
         width:inherit;
         height:inherit;
         background-color: white;
-        border-left: 1px solid rgba(240, 237, 237, 0.78)
-
+        border-left: 1px solid rgba(226, 223, 223, 0.78)
     }
     
     /*TODO: Make Y-overflow scrolling act like X-overflow scrolling */

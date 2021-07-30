@@ -22,6 +22,7 @@
     {/if}
         <h1 class="tab-text">{text}</h1>
     
+
     <div class="tab-close-icon">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="#767C89">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -46,10 +47,10 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        border-top: 1px solid #F8F8F8;
-        border-left: 1px solid #F8F8F8;
+        border-top: 1px solid #ebeaea;
+        border-left: 1px solid #e7e7e7;
         border-right: 1px solid #F8F8F8;
-        box-shadow: 0px 0px 3px #F8F8F8;
+        box-shadow: 0px 0px 10px #e7e7e7;
         /* border-top: 1px solid rgba(0, 136, 255, 0.626); */
         cursor: pointer;
     }
@@ -59,11 +60,7 @@
     }
 
     .tab-inactive{
-        opacity: 0.6;
-    }
-
-    .tab-window1{
-        margin-left: 5vw;
+        opacity: 0.8;
     }
 
     .tab-icon{

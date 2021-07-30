@@ -5,7 +5,7 @@ import { writable } from 'svelte/store';
 export const current_screen = writable("EDITOR");
 
 export const editor_info = writable({
-    split_window = false,
+    split_window: false,
     left_panel: [{
         name: "Yeast with milk",
         type: "plasmid",
@@ -27,4 +27,4 @@ export function getData(type){
 }
 
 
-export const split_window = writable(false);
+// export const split_window = writable(false);

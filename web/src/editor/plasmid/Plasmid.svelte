@@ -20,7 +20,9 @@ let s = (p5) => {
     };
 
     // reset board when mouse is pressed
-    p5.mousePressed = () => {
+    p5.mousePressed = (e) => {
+        CM.mouseClicked(e);
+        console.log(e)
     };
 
 };

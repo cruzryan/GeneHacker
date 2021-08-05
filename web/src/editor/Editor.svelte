@@ -82,7 +82,9 @@
         width:inherit;
         height:inherit;
         background-color: white;
-        border-left: 1px solid rgba(226, 223, 223, 0.78)
+        border-left: 1px solid rgba(226, 223, 223, 0.78);
+        display: flex;
+        align-items: center;
     }
     
     /*TODO: Make Y-overflow scrolling act like X-overflow scrolling */

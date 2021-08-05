@@ -1,7 +1,7 @@
 
 let self, p5, gbk, w, h, r, plasmid_name;
 
-let sequence = "ACCAACAAAAAACACACCCACACACAC";
+let sequence = "ACCAACAAAAAACACACCCAACACACaCACACACACACACACACACACACACACACCCACACAC";
 let c_x = 0;
 let c_y = 0;
 
@@ -19,7 +19,6 @@ let selectionCords = {
         y: 0,
     }
 }
-
 
 export class CircularMap {
 
@@ -87,22 +86,46 @@ export class CircularMap {
     }
 
 
-    draw_arrow(start_bp_num, end_bp_num, direction, text, level) {
+    draw_arrow(start_bp_num, end_bp_num, direction, text, level, color) {
         let s_angle = this.base_to_angle(start_bp_num);
         let e_angle = this.base_to_angle(end_bp_num);
 
         let start_angle;
         let end_angle;
 
+        //How transparent should the fill be (in hex) (0-F)
+        let alpha = "4";
+        let stroke_color;
+        let fill_color;
+
+        switch (color) {
+            case 0:
+                //#fab ?
+                stroke_color = "#AB9DBC";
+                fill_color = "#D7C7EB";
+                break;
+
+            case 1:
+                stroke_color = "#DDC3A6";
+                fill_color = "#F8DEC1";
+                break;
+
+            case 2:
+                stroke_color = "#8DC4CE";
+                fill_color = "#AAE4EF";
+                break;
+
+        }
+
         //To specify which level the arrow should go to 
-        let minR =  40 + (level * 50);
-         
+        let minR = 40 + (level * 50);
+
         let maxR;
 
-        if(level == 0){
-            maxR =  70 + (level * 70);
-        }else{
-            maxR =  70 + (level * 70) - (20*level);
+        if (level == 0) {
+            maxR = 70 + (level * 70);
+        } else {
+            maxR = 70 + (level * 70) - (20 * level);
         }
 
         //Length of the arrow
@@ -119,7 +142,7 @@ export class CircularMap {
         p5.push()
         p5.translate(c_x, c_y);
         p5.stroke(255, 255, 255, 0)
-        p5.fill(255, 229, 199)
+        p5.fill(fill_color)
         p5.strokeWeight(2)
 
         let mink = 40;
@@ -127,31 +150,28 @@ export class CircularMap {
 
         if (direction == "right") {
             p5.rotate(Math.floor(e_angle))
-            p5.triangle(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) - 5, -10 + (2*level), rl + (maxk / 3), -16, rl + (maxk / 3) +16 + (2*level))
-            p5.stroke(210, 110, 99)
-            p5.line(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) - 5 , -10 + (2*level), rl + (maxk / 3))
-            p5.line(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) - 5 , -10, rl + (maxk / 3) +16 + (2*level))
+            p5.triangle(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) - 5, (-12) + (2 * level), rl + (maxk / 3), -12, rl + (maxk / 3) + 16 + (2 * level))
+            // p5.triangle(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) - 5, -10 + (2 * level), rl + (maxk / 3),rl + (maxk / 3) + 16 + (2 * level),  )
+            p5.stroke(stroke_color)
+            p5.line(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) - 5, -10 + (2 * level), rl + (maxk / 3))
+            p5.line(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) - 5, -10, rl + (maxk / 3) + 16 + (2 * level))
+
         } else {
-
-
             p5.rotate(s_angle)
-            p5.triangle(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) +2, -10, rl + (maxk / 3)+7, 0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) -13, -10, rl + (maxk / 3)+7, 0,0 )
-            p5.stroke(210, 110, 99)
-            p5.line(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) +2, -10, rl + (maxk / 3)+7)
-            p5.line(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) -13, -10, rl + (maxk / 3)+7)
+            p5.triangle(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) + 2, -10, rl + (maxk / 3) + 7, 0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) - 13, -10, rl + (maxk / 3) + 7, 0, 0)
+            p5.stroke(stroke_color)
+            p5.line(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) + 2, -10, rl + (maxk / 3) + 7)
+            p5.line(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) - 13, -10, rl + (maxk / 3) + 7)
         }
 
         p5.pop()
 
-
         //Draw un Arc
         p5.push()
-        
-
-        p5.translate(c_x,c_y);
+        p5.translate(c_x, c_y);
         p5.rotate(start_angle)
-        p5.fill(255, 229, 199)
-        p5.stroke(210, 110, 99)
+        p5.fill(fill_color)
+        p5.stroke(stroke_color)
         //Draw inner arc (with color)
         p5.strokeWeight(2)
         p5.arc(0, 0, r - minR, r - minR, 0, end_angle - start_angle);
@@ -162,7 +182,7 @@ export class CircularMap {
 
         //Draw the arrow's base line 
         p5.push()
-        p5.stroke(210, 110, 99)
+        p5.stroke(stroke_color)
         p5.strokeWeight(2)
         p5.translate(c_x, c_y);
 
@@ -172,8 +192,24 @@ export class CircularMap {
         } else {
             p5.rotate(Math.floor(s_angle))
         }
-        p5.line(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3))+1, 0, rl + (maxk / 3))
+        p5.line(0, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) + 1, 0, rl + (maxk / 3))
         p5.pop()
+
+        //Text
+        p5.push();
+        p5.translate(c_x, c_y);
+        p5.rotate(((e_angle - s_angle) / 2) + s_angle)
+        p5.textSize(9)
+
+        //To verify arrow text fits the circunference
+        let arc_len = Math.abs(e_angle) + Math.abs(s_angle);
+        let calc = (arc_len / 9 / text.length) > 3;
+        //If text fits, slow it!
+        if (calc) {
+            p5.text(text, -(text.length / 4) * 9, Math.round(rl + (mink / 3)) + Math.round((maxk / 3)) - 3)
+        }
+        p5.pop();
+
 
     }
 
@@ -318,9 +354,9 @@ export class CircularMap {
         this.draw_circle();
         this.draw_scale_rects();
 
-        this.draw_arrow(6, 24, "right", "HygR", 0);
-        this.draw_arrow(12, 18, "right", "HygR",1);
-        this.draw_arrow(18, 24, "right", "HygR",2);
+        this.draw_arrow(12, 64, "right", "ABCDEF", 0, 0);
+        this.draw_arrow(30, 45, "left", "Slovakia is cool", 1, 1);
+        this.draw_arrow(18, 64, "right", "HygR", 2, 2);
 
         this.draw_selection();
         this.draw_plasmid_name();

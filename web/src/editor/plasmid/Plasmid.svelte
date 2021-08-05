@@ -1,19 +1,25 @@
 <script>
-    import p5 from "../../p5.min";
     import {CircularMap} from "./CircularMap";
     let w;
     let h;
 
+function getLowestVal(v1, v2){
+    return (v1 > v2)? v1 : v2;
+}
+
 let s = (p5) => {
 
-    let CM = new CircularMap(p5, "", w,h);
+    let CM = new CircularMap(p5, "", getLowestVal(w,h),getLowestVal(w,h));
     
     p5.setup = () => {
-        p5.createCanvas(w, h);
+
+        let s = getLowestVal(w,h);
+        p5.createCanvas(s, s);
     }; 
 
     p5.draw = () => {
-        p5.resizeCanvas(w, h);
+        let s = getLowestVal(w,h);
+        p5.resizeCanvas(s, s);
         p5.background(255);
 
         CM.draw();
@@ -34,7 +40,7 @@ let s = (p5) => {
 	});
 
 </script>
-<main id="plassketch" bind:clientWidth={w} bind:clientHeight={h}>
+<main id="plassketch" bind:clientWidth={w} bind:clientHeight={h} >
   
 </main>
 <style>

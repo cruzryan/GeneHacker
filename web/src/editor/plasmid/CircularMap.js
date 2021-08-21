@@ -1,13 +1,14 @@
+import { GeneAMA } from "../GeneAMA";
 
-let self, p5, gbk, w, h, r, plasmid_name;
+let self, p5, w, h, r, plasmid_name;
 
-let sequence = "ACCAACAAAAAACACACCCAACACACaCACACACACACACACACACACACACACACCCACACAC";
+let sequence = "ACAAA";
 let c_x = 0;
 let c_y = 0;
 
 let number_of_clicks = 0;
 
-let showSelection = true;
+let showSelection = false;
 let selectionCords = {
     p1: {
         x: 0,
@@ -20,15 +21,18 @@ let selectionCords = {
     }
 }
 
+//To control arrow layers
+let allArrows = []
+
 export class CircularMap {
 
-    constructor(ctx, dna, width, height) {
+    constructor(ctx, width, height) {
         self = this;
         p5 = ctx;
-        gbk = dna;
         w = width;
         h = height;
-
+        
+        sequence = GeneAMA.getSequence() 
 
         //Circle center
         c_x = w / 2;
@@ -36,7 +40,9 @@ export class CircularMap {
         r = (h - ((h / 2)));
 
         //Plasmid setup
-        plasmid_name = "pMDC32"
+        plasmid_name = GeneAMA.getName()
+
+        this.calculateArrows()
     }
 
 
@@ -44,37 +50,62 @@ export class CircularMap {
         sequence = newSequence;
     }
 
+    //To toggle plasmid selection
+    static activateSelection() {
+        showSelection = !showSelection;
+        number_of_clicks = 0;
+        selectionCords = {
+            p1: {
+                x: 0,
+                y: 0,
+            },
 
-    mouseClicked(e) {
+            p2: {
+                x: 0,
+                y: 0,
+            }
+        }
+    }
 
+    static resize(newWidth, newHeight) {
+        w = newWidth
+        h = newHeight
+        //Recalculate sizes please bro
+        c_x = w / 2;
+        c_y = h / 2;
+        r = (h - ((h / 2)));
+    }
+
+    handleSelection() {
         if (number_of_clicks == 0) {
-            selectionCords.p1.x = e.x;
-            selectionCords.p1.y = e.y;
-            showSelection = true;
+            selectionCords.p1.x = p5.mouseX;
+            selectionCords.p1.y = p5.mouseY;
         }
 
         if (number_of_clicks == 1) {
-            selectionCords.p2.x = e.x;
-            selectionCords.p2.y = e.y;
+            selectionCords.p2.x = p5.mouseX;
+            selectionCords.p2.y = p5.mouseY;
+
+            let b1 = this.angle_to_base(this.point_to_angle(selectionCords.p1.x, selectionCords.p1.y));
+            let b2 = this.angle_to_base(this.point_to_angle(selectionCords.p2.x, selectionCords.p2.y))
+
+            console.log(b1, "-", b2)
         }
 
-        if (number_of_clicks >= 2) {
-            number_of_clicks = 0;
-            selectionCords = {
-                p1: {
-                    x: 0,
-                    y: 0,
-                },
-
-                p2: {
-                    x: 0,
-                    y: 0,
-                }
-            }
-        } else {
+        if (number_of_clicks <= 2) {
             number_of_clicks++;
         }
+    }
 
+
+    mouseClicked(e) {
+        if (showSelection) {
+            this.handleSelection()
+        }
+    }
+
+    rad_to_ang(rad) {
+        return (rad * 180) / Math.PI
     }
 
     base_to_angle(number) {
@@ -84,6 +115,20 @@ export class CircularMap {
     angle_to_base(angle) {
         return Math.floor(p5.map(angle, 0, 360, 0, sequence.length, true));
     }
+
+
+    point_to_angle(x, y) {
+        //Getting the angle of the individual vectors
+        let ang = this.rad_to_ang(Math.atan2(y - c_y, x - c_x)) + 90
+
+        //Since we're adding 90, our current range is from -90 to 270. We use this "if" to convert it back to the 0-360 range
+        if (ang < 0) {
+            return (ang + 360)
+        }
+
+        return ang;
+    }
+
 
 
     draw_arrow(start_bp_num, end_bp_num, direction, text, level, color) {
@@ -280,24 +325,31 @@ export class CircularMap {
         if (showSelection == false) return;
 
 
-        let v1 = p5.createVector(c_x, c_y);
+        let center_vector = p5.createVector(c_x, c_y);
 
         let first_point_exists = selectionCords.p1.x != 0 && selectionCords.p1.y != 0;
         let second_point_exists = selectionCords.p2.x != 0 && selectionCords.p2.y != 0;
+
+        if (!second_point_exists) {
+            p5.push()
+            //Draw Ghost selection line that follows mouse
+            let ghostVec = p5.createVector(p5.mouseX - c_x, p5.mouseY - c_y).normalize().mult((c_y / 2));
+            this.drawSelectionLine(center_vector, ghostVec, '#eaeaea')
+            p5.pop()
+
+        }
+
 
         //If first point is already selected
         if (first_point_exists && !second_point_exists) {
 
             p5.push()
-
             //Draw Ghost selection line that follows mouse
             let ghostVec = p5.createVector(p5.mouseX - c_x, p5.mouseY - c_y).normalize().mult((c_y / 2));
-            this.drawSelectionLine(v1, ghostVec, '#eaeaea')
-
+            this.drawSelectionLine(center_vector, ghostVec, '#eaeaea')
             //Draw real selection line for the first point
             let fp = p5.createVector(selectionCords.p1.x - c_x, selectionCords.p1.y - c_y).normalize().mult((c_y / 2));
-            this.drawSelectionLine(v1, fp, '#000')
-
+            this.drawSelectionLine(center_vector, fp, '#000')
             p5.pop()
 
             this.drawFilledArc(fp.heading(), ghostVec.heading());
@@ -307,21 +359,23 @@ export class CircularMap {
         if (second_point_exists) {
             //Draw Ghost selection line that follows mouse
             let fp = p5.createVector(selectionCords.p1.x - c_x, selectionCords.p1.y - c_y).normalize().mult((c_y / 2));
-            this.drawSelectionLine(v1, fp, '#000')
+            this.drawSelectionLine(center_vector, fp, '#000')
 
             //Draw real selection line for the first point
             let sp = p5.createVector(selectionCords.p2.x - c_x, selectionCords.p2.y - c_y).normalize().mult((c_y / 2));
-            this.drawSelectionLine(v1, sp, '#000')
+            this.drawSelectionLine(center_vector, sp, '#000')
 
             this.drawFilledArc(fp.heading(), sp.heading());
-
         }
-
     }
 
     draw_circle() {
         p5.push()
-        p5.stroke(121)
+        if (showSelection) {
+            p5.stroke("#000")
+        } else {
+            p5.stroke(121)
+        }
         p5.strokeWeight(3)
         p5.circle(c_x, c_y, r);
         p5.pop()
@@ -350,13 +404,48 @@ export class CircularMap {
         p5.pop();
     }
 
+    calculateArrows(){
+        let features = GeneAMA.getFeatures()
+
+        features.forEach(f => {
+
+            if (f.label == undefined || f.label == ""){
+                return
+            }
+
+            let arrow = {
+                start: f.start,
+                end: f.end,
+                label: f.label,
+                level: 0,
+                color: 0,
+            }
+
+            if (f.direction != undefined && f.direction != null) {
+                arrow.direction = f.direction.toLowerCase()
+            }else{
+                arrow.direction = "right";
+            }
+
+            allArrows.push(arrow)
+        })
+    }
+
+    drawAllArrows(){
+        allArrows.forEach(arrow => {
+            this.draw_arrow(arrow.start, arrow.end, arrow.direction, arrow.label, arrow.level, arrow.color);
+        })
+    }
+
     draw() {
         this.draw_circle();
         this.draw_scale_rects();
 
-        this.draw_arrow(12, 64, "right", "ABCDEF", 0, 0);
-        this.draw_arrow(30, 45, "left", "Slovakia is cool", 1, 1);
-        this.draw_arrow(18, 64, "right", "HygR", 2, 2);
+        // this.draw_arrow(12, 64, "right", "ABCDEF", 0, 0);
+        // this.draw_arrow(30, 45, "left", "Slovakia is cool", 1, 1);
+        // this.draw_arrow(18, 64, "right", "HygR", 2, 2);
+
+        this.drawAllArrows();
 
         this.draw_selection();
         this.draw_plasmid_name();

@@ -63,10 +63,23 @@ func returnProject(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//For testing purposes
+func returnTestPlasmid(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	plas_data := getFileData("tests_resources\\addgeneplasmid.gbk")
+	plasmid_str := getAsString(plas_data)
+
+	fmt.Fprintf(w, "%s\n", plasmid_str)
+
+}
+
 func setup_go_server() {
 	//Server API
 	http.HandleFunc("/settings", returnSettings)
 	http.HandleFunc("/proj", returnProject)
+	http.HandleFunc("/getTestPlasmid", returnTestPlasmid)
 	//Nice
 	http.ListenAndServe(":6969", nil)
 }

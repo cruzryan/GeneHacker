@@ -1,5 +1,6 @@
 <script>
   import { CircularMap } from "./CircularMap";
+  import { SequenceMap } from "./SequenceMap";
   import { editor_info } from "../../store";
   
   import { watchResize } from "svelte-watch-resize";
@@ -58,13 +59,25 @@
 
 
   let sequencemap = (p5) => {
+    let SM = new SequenceMap(p5, getLowestVal(w, h), getLowestVal(w, h))
+
+    p5.setup = () => {
+      let sz = getLowestVal(w, h);
+      p5.createCanvas(sz, sz);
+    }
+
+    p5.draw = () => {
+      p5.background(255);
+       SM.draw()
+    }
 
   }
 
   import { onMount } from "svelte";
 
   onMount(function () {
-    let x = new p5(circularmap, "circularmap");
+    let cm = new p5(circularmap, "circularmap");
+    let sm = new p5(sequencemap, "sequencemap");
   });
 </script>
 

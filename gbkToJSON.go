@@ -238,6 +238,14 @@ func lex(data string) *Plasmid {
 				//Get feature attributes
 				for m := i + 1; m < len(file); m++ {
 
+					//If there is no next feature, but instead origin then break
+					if currentWord(&file, "ORIGIN", m) {
+						all_features = append(all_features, current_feature)
+						current_feature = map[string]interface{}{}
+						i = m - 1
+						break
+					}
+
 					//If you find the next feature, break;
 					if f, _ := isFeature(&file, m); f {
 						all_features = append(all_features, current_feature)
@@ -261,6 +269,11 @@ func lex(data string) *Plasmid {
 						}
 
 						for y := content_start; y < len(file); y++ {
+
+							if string(file[y:y+len("ORIGIN")]) == "ORIGIN" {
+								break
+							}
+
 							if string(file[y-len("                     /"):y]) == "                     /" {
 								break
 							} else {

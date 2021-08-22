@@ -1,6 +1,15 @@
 <script>
   import { CircularMap } from "./CircularMap";
+  import { editor_info } from "../../store";
+  
   import { watchResize } from "svelte-watch-resize";
+
+  let editorinfo;
+
+  editor_info.subscribe(value => {
+		editorinfo = value;
+	});
+
   let w;
   let h;
 
@@ -13,7 +22,6 @@
   }
 
   let k;
-
   document.onkeypress = function (event) {
     let char = typeof event !== "undefined" ? event.keyCode : event.which;
     k = String.fromCharCode(char);
@@ -23,7 +31,9 @@
     }
   };
 
-  let s = (p5) => {
+  /*---------------- Circular Map -------------------------- */
+
+  let circularmap = (p5) => {
     let CM = new CircularMap(p5, getLowestVal(w, h), getLowestVal(w, h));
 
     p5.setup = () => {
@@ -35,7 +45,6 @@
       let sz = getLowestVal(w, h);
       p5.resizeCanvas(sz, sz);
       p5.background(255);
-
       CM.draw();
     };
 
@@ -45,15 +54,25 @@
     };
   };
 
+  /*---------------- Sequence Map -------------------------- */
+
+
+  let sequencemap = (p5) => {
+
+  }
+
   import { onMount } from "svelte";
 
   onMount(function () {
-    let x = new p5(s, "plassketch");
+    let x = new p5(circularmap, "circularmap");
   });
 </script>
 
 <main>
-  <div use:watchResize={handleResize} bind:clientWidth={w} bind:clientHeight={h}  id="plassketch" class="main-canvas"></div>
+  <div use:watchResize={handleResize} bind:clientWidth={w} bind:clientHeight={h}  id="circularmap" class="main-canvas"></div>
+  {#if editorinfo.split_window == false}
+    <div use:watchResize={handleResize} bind:clientWidth={w} bind:clientHeight={h}  id="sequencemap" class="main-canvas"></div>
+  {/if}
 </main>
 
 <style>

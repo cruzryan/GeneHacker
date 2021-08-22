@@ -6,13 +6,19 @@ export const current_screen = writable("EDITOR");
 
 export const editor_info = writable({
     split_window: false,
-    left_panel: [{
+    left_panel: {
+    current_tab: 0,
+    tabs: [{
         name: "Yeast with milk",
         type: "plasmid",
         active: true,
         data: ""
-    }],
-    right_panel: []
+    }]
+    },
+    right_panel: {
+        current_tab: 0,
+        tabs: []
+    }
 });
 
 export function getData(type){

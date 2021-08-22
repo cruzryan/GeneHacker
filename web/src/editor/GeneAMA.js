@@ -16,7 +16,7 @@ export class GeneAMA{
     constructor(plasmid_json){
         plasmid = JSON.parse(plasmid_json)
         self = this;
-        // console.log(plasmid)
+        console.log(plasmid.Features);
     }
 
 
@@ -38,6 +38,10 @@ export class GeneAMA{
 
     static getName(){
         return plasmid.Keywords;
+    }
+
+    static updateFeature(){
+        
     }
 
 }

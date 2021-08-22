@@ -3,6 +3,19 @@
   import Plasmid from "./plasmid/Plasmid.svelte";
   import { GeneAMA } from "./GeneAMA";
   import { getData } from "../store";
+  import { editor_info } from "../store";
+
+  let editorinfo;
+  //Current tab in left panel
+  let left_tab;
+
+  //Current tab in right panel
+  let right_tab;
+
+	editor_info.subscribe(value => {
+		editorinfo = value;
+    left_tab = editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab];
+	});
 
   //TEST DATA: TO-DO: REMOVE THIS
   let sq_data = getData("getTestPlasmid");
@@ -21,13 +34,14 @@
   <div class="windows">
     <div class="window">
       <div class="tabs hide-native-scrollbar">
-        <Tab active={true} text="Yeast with milk" icon_type="plasmid" />
+        <Tab active={true} text={left_tab.name} icon_type={left_tab.type} />
       </div>
 
       <div class="panel">
         <Plasmid />
       </div>
     </div>
+    {#if editorinfo.split_window == true}
     <div class="window">
       <div class="tabs hide-native-scrollbar">
         <Tab text="Sars-Cov-2 Findings" icon_type="lab" />
@@ -35,6 +49,7 @@
 
       <div class="panel" />
     </div>
+    {/if}
   </div>
 </main>
 

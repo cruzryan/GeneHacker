@@ -24,6 +24,14 @@ let selectionCords = {
 //To control arrow layers
 let allArrows = []
 
+// {start: x, end: y}
+let lvl0 = []
+let lvl1 = []
+let lvl2 = []
+
+let highlighted_feature = "";
+
+
 export class CircularMap {
 
     constructor(ctx, width, height) {
@@ -31,8 +39,8 @@ export class CircularMap {
         p5 = ctx;
         w = width;
         h = height;
-        
-        sequence = GeneAMA.getSequence() 
+
+        sequence = GeneAMA.getSequence()
 
         //Circle center
         c_x = w / 2;
@@ -98,9 +106,43 @@ export class CircularMap {
     }
 
 
+    featureClicked(e){
+        for (let i = 0; i < allArrows.length; i++) {
+            let arrow = allArrows[i];
+
+            let level = arrow.level;
+            let minR = 40 + (level * 50);
+            let rl = -r / 2;
+
+            let maxR;
+
+            if (level == 0) {
+                maxR = 70 + (level * 70);
+            } else {
+                maxR = 70 + (level * 70) - (20 * level);
+            }
+
+            let lessThanMinR = p5.dist(c_x, c_y, p5.mouseX, p5.mouseY) < (r-minR)/2 
+            let lessThanMaxR = p5.dist(c_x, c_y, p5.mouseX, p5.mouseY) > (r-maxR)/2
+            
+            if(lessThanMinR && lessThanMaxR){
+
+                let angleLessThanEnd = this.point_to_angle(p5.mouseX, p5.mouseY) < this.base_to_angle(arrow.end);
+                let angleBiggerThanStart = this.point_to_angle(p5.mouseX, p5.mouseY) > this.base_to_angle(arrow.start);
+                if(angleBiggerThanStart && angleLessThanEnd){
+                    console.log(arrow.label)
+                    return arrow.label;
+                }
+            }
+        }
+        return "";
+    }
+
     mouseClicked(e) {
         if (showSelection) {
             this.handleSelection()
+        }else{
+            highlighted_feature = this.featureClicked();
         }
     }
 
@@ -135,31 +177,47 @@ export class CircularMap {
         let s_angle = this.base_to_angle(start_bp_num);
         let e_angle = this.base_to_angle(end_bp_num);
 
+        if (e_angle - s_angle < 5) return;
+
         let start_angle;
         let end_angle;
 
         //How transparent should the fill be (in hex) (0-F)
-        let alpha = "4";
         let stroke_color;
         let fill_color;
 
         switch (color) {
             case 0:
                 //#fab ?
-                stroke_color = "#AB9DBC";
+                stroke_color = "#8B64BA";
                 fill_color = "#D7C7EB";
                 break;
 
             case 1:
-                stroke_color = "#DDC3A6";
+                stroke_color = "#DBB083";
                 fill_color = "#F8DEC1";
                 break;
 
             case 2:
-                stroke_color = "#8DC4CE";
+                stroke_color = "#59BACC";
                 fill_color = "#AAE4EF";
                 break;
 
+            case 3:
+                stroke_color = "#589BE8";
+                fill_color = "#83b9ff";
+                break;
+
+
+            case 4:
+                stroke_color = "#DBDB36";
+                fill_color = "#ffffb3";
+                break;
+        }
+
+        //When you click it, the stroke of the arrow should change
+        if(highlighted_feature != text){
+            stroke_color = fill_color
         }
 
         //To specify which level the arrow should go to 
@@ -404,12 +462,49 @@ export class CircularMap {
         p5.pop();
     }
 
-    calculateArrows(){
+    canFitInLevel(start, end, level) {
+
+        let lvl = [];
+
+        switch (level) {
+            case 0: lvl = lvl0.slice(); break;
+            case 1: lvl = lvl1.slice(); break;
+            case 2: lvl = lvl2.slice(); break;
+            default: console.warn("Level you tried to get does not exist!")
+        }
+
+        if (lvl.length == 0) {
+            return true;
+        }
+
+        let canBeInLevel = true;
+        for (let i = 0; i < lvl.length; lvl++) {
+            if (this.collides(lvl[i].start, lvl[i].end, start, end)) {
+                canBeInLevel = false;
+            }
+        }
+
+        return canBeInLevel;
+
+    }
+
+    collides(a, b, c, d) {
+        if (c >= a && c <= b) {
+            return true;
+        }
+
+        if (d >= a && d <= b) {
+            return true;
+        }
+        return false;
+    }
+
+    calculateArrows() {
         let features = GeneAMA.getFeatures()
 
         features.forEach(f => {
 
-            if (f.label == undefined || f.label == ""){
+            if (f.label == undefined || f.label == "") {
                 return
             }
 
@@ -423,27 +518,60 @@ export class CircularMap {
 
             if (f.direction != undefined && f.direction != null) {
                 arrow.direction = f.direction.toLowerCase()
-            }else{
+            } else {
                 arrow.direction = "right";
+            }
+
+            fitloop:
+            for (let k = 0; k < 3; k++) {
+                if (this.canFitInLevel(f.start, f.end, k)) {
+                    arrow.level = k
+                    arrow.color = k
+                    switch (k) {
+                        case 0: lvl0.push({ start: f.start, end: f.end }); break fitloop;
+                        case 1: lvl1.push({ start: f.start, end: f.end }); break fitloop;
+                        case 2: lvl2.push({ start: f.start, end: f.end }); break fitloop;
+                        default: console.warn("Level index out of range!")
+                    }
+                }
             }
 
             allArrows.push(arrow)
         })
     }
 
-    drawAllArrows(){
-        allArrows.forEach(arrow => {
-            this.draw_arrow(arrow.start, arrow.end, arrow.direction, arrow.label, arrow.level, arrow.color);
-        })
+    drawAllArrows() {
+        let numColors = 5;
+
+        for (let i = 0; i < allArrows.length; i++) {
+            let arrow = allArrows[i];
+            if (arrow.level == 0) {
+                this.draw_arrow(arrow.start, arrow.end, arrow.direction, arrow.label, arrow.level, i % numColors);
+            }
+        }
+
+        for (let i = 0; i < allArrows.length; i++) {
+            let arrow = allArrows[i];
+            if (arrow.level == 1) {
+                this.draw_arrow(arrow.start, arrow.end, arrow.direction, arrow.label, arrow.level, i % numColors);
+            }
+        }
+
+        for (let i = 0; i < allArrows.length; i++) {
+            let arrow = allArrows[i];
+            if (arrow.level == 2) {
+                this.draw_arrow(arrow.start, arrow.end, arrow.direction, arrow.label, arrow.level, i % numColors);
+            }
+        }
     }
 
     draw() {
         this.draw_circle();
         this.draw_scale_rects();
 
-        // this.draw_arrow(12, 64, "right", "ABCDEF", 0, 0);
-        // this.draw_arrow(30, 45, "left", "Slovakia is cool", 1, 1);
-        // this.draw_arrow(18, 64, "right", "HygR", 2, 2);
+        // this.draw_arrow(12, 40, "right", "ABCDEF", 0, 0);
+        // this.draw_arrow(30, 145, "left", "Slovakia is cool", 1, 1);
+        // this.draw_arrow(18, 769, "right", "HygR", 2, 2);
 
         this.drawAllArrows();
 

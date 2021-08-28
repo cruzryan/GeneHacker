@@ -37,8 +37,8 @@ export class CircularMap {
     constructor(ctx, width, height) {
         self = this;
         p5 = ctx;
-        w = width;
-        h = height;
+        w = width/2;
+        h = height/2;
 
         sequence = GeneAMA.getSequence()
 
@@ -73,6 +73,7 @@ export class CircularMap {
                 y: 0,
             }
         }
+        p5.loop();
     }
 
     static resize(newWidth, newHeight) {
@@ -97,7 +98,6 @@ export class CircularMap {
             let b1 = this.angle_to_base(this.point_to_angle(selectionCords.p1.x, selectionCords.p1.y));
             let b2 = this.angle_to_base(this.point_to_angle(selectionCords.p2.x, selectionCords.p2.y))
 
-            console.log(b1, "-", b2)
         }
 
         if (number_of_clicks <= 2) {
@@ -130,7 +130,6 @@ export class CircularMap {
                 let angleLessThanEnd = this.point_to_angle(p5.mouseX, p5.mouseY) < this.base_to_angle(arrow.end);
                 let angleBiggerThanStart = this.point_to_angle(p5.mouseX, p5.mouseY) > this.base_to_angle(arrow.start);
                 if(angleBiggerThanStart && angleLessThanEnd){
-                    console.log(arrow.label)
                     return arrow.label;
                 }
             }
@@ -568,15 +567,22 @@ export class CircularMap {
     draw() {
         this.draw_circle();
         this.draw_scale_rects();
-
-        // this.draw_arrow(12, 40, "right", "ABCDEF", 0, 0);
-        // this.draw_arrow(30, 145, "left", "Slovakia is cool", 1, 1);
-        // this.draw_arrow(18, 769, "right", "HygR", 2, 2);
-
         this.drawAllArrows();
-
         this.draw_selection();
         this.draw_plasmid_name();
+
+        let first_point_exists = selectionCords.p1.x != 0 && selectionCords.p1.y != 0;
+        let second_point_exists = selectionCords.p2.x != 0 && selectionCords.p2.y != 0;
+
+        if (first_point_exists && second_point_exists){
+            p5.noLoop()
+        }else{
+            if (showSelection == true){
+                p5.loop();
+            }else{
+            p5.noLoop()
+            }
+        }
     }
 
 

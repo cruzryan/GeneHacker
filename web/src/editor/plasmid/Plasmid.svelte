@@ -16,10 +16,12 @@
 
   function handleResize(node){
     CircularMap.resize(w,h);
+    SequenceMap.resize(w,h);
   }
 
   function getLowestVal(v1, v2) {
-    return v1 > v2 ? v1 : v2;
+    let v = v1 > v2 ? v1 : v2; 
+    return v;
   }
 
   let k;
@@ -30,6 +32,7 @@
     if(k == "s"){
         CircularMap.activateSelection();
     }
+    p5.loop()
   };
 
   /*---------------- Circular Map -------------------------- */
@@ -40,6 +43,7 @@
     p5.setup = () => {
       let sz = getLowestVal(w, h);
       p5.createCanvas(sz, sz);
+      p5.noLoop()
     };
 
     p5.draw = () => {
@@ -52,7 +56,9 @@
     // reset board when mouse is pressed
     p5.mousePressed = (e) => {
       CM.mouseClicked(e);
+      p5.loop()
     };
+
   };
 
   /*---------------- Sequence Map -------------------------- */
@@ -64,11 +70,16 @@
     p5.setup = () => {
       let sz = getLowestVal(w, h);
       p5.createCanvas(sz, sz);
+      // p5.textFont("Oxygen");
+      p5.noLoop()
     }
 
     p5.draw = () => {
+      let sz = getLowestVal(w, h);
+      p5.resizeCanvas(sz, sz);
       p5.background(255);
-       SM.draw()
+      SM.draw()
+      p5.noLoop()
     }
 
   }
@@ -77,14 +88,18 @@
 
   onMount(function () {
     let cm = new p5(circularmap, "circularmap");
-    let sm = new p5(sequencemap, "sequencemap");
+
+    if(editorinfo.split_window === false){
+      let sm = new p5(sequencemap, "sequencemap");
+    }
+
   });
 </script>
 
 <main>
-  <div use:watchResize={handleResize} bind:clientWidth={w} bind:clientHeight={h}  id="circularmap" class="main-canvas"></div>
+  <div  use:watchResize={handleResize} bind:clientWidth={w} bind:clientHeight={h}  id="circularmap" class="main-canvas"></div>
   {#if editorinfo.split_window == false}
-    <div use:watchResize={handleResize} bind:clientWidth={w} bind:clientHeight={h}  id="sequencemap" class="main-canvas"></div>
+    <div id="sequencemap" class="main-canvas"></div>
   {/if}
 </main>
 
@@ -103,4 +118,5 @@
     width: 100%;
     height: 100%;
   }
+
 </style>

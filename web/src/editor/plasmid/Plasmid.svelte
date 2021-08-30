@@ -82,6 +82,14 @@
       p5.noLoop()
     }
 
+// reset board when mouse is pressed
+    p5.mousePressed = (e) => {
+      // p5.resizeCanvas(getLowestVal(w, h), getLowestVal(w, h));
+      // SM.mouseClicked(e);
+      p5.loop()
+    };
+
+
   }
 
   import { onMount } from "svelte";

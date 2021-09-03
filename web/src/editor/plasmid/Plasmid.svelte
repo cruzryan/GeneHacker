@@ -89,6 +89,10 @@
       p5.loop()
     };
 
+    p5.mouseWheel = (e) => {
+      let dir = e.delta < 0? "up" : "down";
+      SM.scroll(dir)
+    }
 
   }
 

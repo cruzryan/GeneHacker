@@ -43,4 +43,30 @@ export class GeneAMA{
         
     }
 
+    //Returns an array of feature datas;
+    static getFeatureDataFromPosition(position){     
+
+        let pos = position+1;
+        let fd = []
+
+        let features = plasmid.Features;
+
+        for(let i = 0; i < features.length; i++){
+
+            let feature = features[i];
+
+            if (feature.label === undefined) continue;
+
+            let dir = feature.direction === undefined? "right" : "left";
+            if(pos >= feature.start && pos <= feature.end){
+                fd.push({
+                    name: feature.label,
+                    direction: dir
+                })
+            }
+        }
+
+        return fd;
+    }
+
 }

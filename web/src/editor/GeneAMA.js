@@ -57,12 +57,8 @@ export class GeneAMA{
 
             if (feature.label === undefined) continue;
 
-            let dir = feature.direction === undefined? "right" : "left";
             if(pos >= feature.start && pos <= feature.end){
-                fd.push({
-                    name: feature.label,
-                    direction: dir
-                })
+                fd.push(feature)
             }
         }
 

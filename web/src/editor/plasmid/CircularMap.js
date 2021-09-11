@@ -1,4 +1,5 @@
 import { GeneAMA } from "../GeneAMA";
+import { SequenceMap } from "./SequenceMap";
 
 let self, p5, w, h, r, plasmid_name;
 
@@ -142,6 +143,9 @@ export class CircularMap {
             this.handleSelection()
         }else{
             highlighted_feature = this.featureClicked();
+            if(highlighted_feature.length !== 0){
+                SequenceMap.goToFeature(highlighted_feature)
+            }
         }
     }
 

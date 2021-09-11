@@ -4,7 +4,6 @@ import (
 	"image"
 	"log"
 	"os"
-
 	"github.com/tc-hib/winres"
 	"github.com/tc-hib/winres/version"
 )

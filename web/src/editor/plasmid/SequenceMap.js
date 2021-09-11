@@ -1,9 +1,20 @@
 import { GeneAMA } from "../GeneAMA";
 
 let p5, w, h;
-let maxamino = 0;
 //The sequence position to start drawing from
 let sp = 0;
+let n_rendered = 0;
+
+//Maximum aminoacids shown per line
+let maxamino = 0;
+
+//Cursor stuff
+let lastClicked = {x: null, y: null}
+
+let cursor_info = {
+    unit: -1,
+    pos: -1
+} 
 
 export class SequenceMap {
 
@@ -19,27 +30,65 @@ export class SequenceMap {
         h = newHeight;
     }
 
+
+    static goToFeature(feature_name){
+        let ft = GeneAMA.getFeatures();
+        for(let i = 0; i < ft.length; i++){
+            if(ft[i].label == feature_name){
+                sp = ft[i].start-1;
+                p5.loop()
+                return;
+            }
+        }
+    }
+
+    static moveCursor(dir){
+        console.log("moving cursor!")
+        if(dir == "right"){
+            cursor_info.pos++;
+        }else{
+            cursor_info.pos--;
+        }
+    }
+
+    mouseClicked(e){
+
+        //Check if user clicked on the letters
+        cursor_info.unit = this.hitboxCheck()
+        if(cursor_info.unit != -1){
+            cursor_info.pos = this.mouse_to_sequence(cursor_info.unit)
+            console.log(cursor_info.pos)
+        }
+
+    }
+
     scroll(dir){
         let seq = GeneAMA.getSequence()
-        console.log(this.maxAminoacidsShown(seq))
+
         switch(dir){
             case "up":
-                console.log("scrolling up!!", maxamino ,"pos: ", sp)
-
-                if(((sp - maxamino) > 0)){
-                    sp = sp - maxamino;
-                    p5.loop()
-                }
-
+                    if (sp - maxamino > 0){
+                        sp -= maxamino;
+                        p5.loop()
+                    }else{
+                        let d = Math.abs(sp - maxamino);
+                        // console.log("d: ", d)
+                        // sp -= d;
+                        // p5.loop()
+                        //NEEDA FIX THIS YO
+                        //NEEDA FIX THIS YO
+                        //NEEDA FIX THIS YO
+                        //NEEDA FIX THIS YO
+                    } 
+ 
             break;
 
             case "down":
-                console.log("scrolling down!!", maxamino, "pos: ", sp )
+                if (sp+(maxamino*n_rendered) > seq.length) return;
                 sp += maxamino;
                 p5.loop()
-            break;
+            break;  
         }
-
     }
     
     calculate_sequence_width(sequence, x){
@@ -59,7 +108,8 @@ export class SequenceMap {
 
     //Since codons need 3 aminoacids, we need to display the maximum multiple of 3 of aminoacids given
     maxAminoacidsShown(sequence){
-        return Math.floor(sequence.length/3)*3;
+        // return Math.floor(sequence.length/3)*3;
+        return sequence.length;
     } 
 
     getCodon(amino_seq){
@@ -113,7 +163,36 @@ export class SequenceMap {
         }
     }
 
-    renderUnit(x,y,sequence, seq_start, feature_data){
+    getMaxAminosPerLine(sequence){
+
+        let x = 0;
+        let y = 0;
+
+        let unit_w = w-(w/10);
+        let unit_h = h/4;
+
+        let real_x = x;
+        let real_y = y + (unit_h - (unit_h/10));
+        let maxAminoacids = this.maxAminoacidsShown(sequence); 
+
+
+        for(let i = 0; i < maxAminoacids; i++){
+            let k = (real_x*1.5) + (i*10) + 5
+            if(k > unit_w+15){ return  i; }
+        }
+    }
+
+    featureListContainsCDS(fl){
+        for(let i = 0; i < fl.length; i++){
+            if (fl[i].Kind === "CDS"){
+                return [true, i];
+
+            }
+        }
+        return [false, -1];
+    }
+
+    renderUnit(x,y,sequence, seq_start, feature_data, index){
         
         let unit_w = w-(w/10);
         let unit_h = h/4;
@@ -122,7 +201,7 @@ export class SequenceMap {
         let real_y = y + (unit_h - (unit_h/10));
         let maxAminoacids = this.maxAminoacidsShown(sequence); 
 
-        // if(real_y+150 > h) return -1;
+        n_rendered++;
 
         p5.push()
         //Draw separator line
@@ -139,15 +218,16 @@ export class SequenceMap {
         p5.textSize(12)
         for(let i = 0; i < maxAminoacids; i++){
             let k = (real_x*1.5) + (i*10) + 5
+            if(seq_start + i >= sequence.length) break;
             if(k > unit_w+15){ last_pos_drawn = seq_start + i; break; }
-            p5.text(this.get_amino_inverse(sequence[i]), k, real_y-12)
+            p5.text(this.get_amino_inverse(sequence[seq_start+i]), k, real_y-12)
         }
         //Draw regular sequence
         p5.fill(0)
         for(let i = 0; i < maxAminoacids; i++){
             let k = (real_x*1.5) + (i*10) + 5
-            if(k > unit_w+15){ maxamino = i; break};
-            p5.text(sequence[i], k, real_y-30)
+            if(k > unit_w+15) break;
+            p5.text(sequence[seq_start+i], k, real_y-30)
             
             //Draw character position lines + numbers
             if(i % 10 == 0) {
@@ -160,15 +240,27 @@ export class SequenceMap {
         //Draw codons
         for(let i = 0; i < maxAminoacids; i+=3){
             let k = (real_x*1.5) + (i*10)
-            if(k > unit_w) break;
-            let codon = this.getCodon(sequence[i]+sequence[i+1]+sequence[i+2])
-            p5.fill(parseInt(codon[0]))
-            let color = this.getCodonColor(codon)
-            p5.fill(color)
-            // p5.noStroke()
-            p5.rect(k+1,real_y-60,30,15);
-            p5.fill(12)
-            p5.text(codon, k+15, real_y-48)
+
+            //Draw end of sequence if its the end 
+            if(seq_start + i >= sequence.length){
+                p5.fill(230)
+                p5.rect(k,real_y-61,3, 60)
+                break;
+            }
+
+            //TO-DO: Fix this so it renders the right codons LOL 
+            let [isCDS, index] = this.featureListContainsCDS(feature_data)
+
+            if(isCDS){
+                if(k > unit_w) break;
+                let codon = this.getCodon(sequence[seq_start+i]+sequence[seq_start+i]+sequence[seq_start+i])
+                p5.fill(parseInt(codon[0]))
+                let color = this.getCodonColor(codon)
+                p5.fill(color)
+                p5.rect(k+1,real_y-60,30,15);
+                p5.fill(12)
+                p5.text(codon, k+15, real_y-48)
+            }            
         }
 
         //Draw feature titles 
@@ -177,40 +269,115 @@ export class SequenceMap {
             let y = real_y-80 - (k*20);
 
             p5.noStroke()
-            if(f.direction === "right"){
+
+            let direction = f.direction === undefined? "right" : "left";
+
+            if(direction === "right"){
                 p5.fill("#4479FF")
-                p5.rect(real_x,y, unit_w-10, 12);
+                p5.rect(real_x,y, unit_w-10, 12, 20, 0,0,20);
                 p5.triangle(unit_w-10, y+12, unit_w-10, y, unit_w, y+6)
             }else{
                 p5.fill("#89ACFF");
-                p5.rect(real_x+15,y, unit_w, 12);
+                p5.rect(real_x+15,y, unit_w, 12, 0, 20, 20, 0);
                 p5.triangle(real_x+15, y, real_x+15, y+12, real_x, y+6)
             }
 
             p5.fill("#fff")
             p5.stroke("#fff")
             p5.textSize(11)
-            p5.text(f.name, real_x+80, y+10)
+            p5.text(f.label, real_x+80, y+10)
         }
+
         p5.pop()
         return last_pos_drawn;
     }
 
-    recursive_unit_rendering(){
+    render_units(){
         let sequence = GeneAMA.getSequence()
-        let c = 0;
-        let lpd = 0;
-        let maxsize = (c*150 + ((h/4) - ((h/4)/10))) + 150 > h
-        while (!maxsize){
-            lpd = this.renderUnit(0, c*150, sequence.slice(lpd), sp, GeneAMA.getFeatureDataFromPosition(lpd))
-            c++;
-            maxsize = (c*150 + ((h/4) - ((h/4)/10))) + 150 > h
+        maxamino = this.getMaxAminosPerLine(sequence);
+        for(let i = 0; i < 10; i++){
+            let maxsize = (i*150 + ((h/4) - ((h/4)/10))) + 150 > h
+            if(maxsize) break;
+            let pos = i*maxamino;
+            n_rendered = i;
+            let ft = GeneAMA.getFeatureDataFromPosition(sp+(pos)); 
+            let new_sp = this.renderUnit(0, i*150, sequence, sp+(pos), ft, i)
+        } 
+    }
+
+    hitboxCheck(){
+        let unit_w = w-(w/10);
+        let unit_h = h/4;
+        let sequence = GeneAMA.getSequence()
+
+        let bx = -1; 
+
+        for(let i = 0; i < 10; i++){
+            let maxsize = (i*150 + ((h/4) - ((h/4)/10))) + 150 > h
+            if(maxsize) break;
+
+            let mx = p5.mouseX;
+            let my = p5.mouseY;
+
+            if(mx > 0 && mx < unit_w+15 && my > (i*150)+(2*unit_h/3.5)){
+                bx = i;
+            }
+        } 
+
+        return bx;
+    }
+
+    mouse_to_sequence(unit){
+        let mx = p5.mouseX;
+        let my = p5.mouseY;
+
+        let y = unit*150;
+        let real_x = 0;
+        let unit_h = h/4;
+        let real_y = y + (unit_h - (unit_h/10));
+
+        for(let i = 0; i < maxamino; i++){
+            let k = (real_x*1.5) + (i*10) + 5
+            if(mx > k-5 && mx < k+5){
+                return i;
+            }
         }
-   
+    } 
+
+
+    drawCursor(){
+
+        //If nothing has ben clicked, don't draw a cursor
+        if(cursor_info.unit == -1 || cursor_info.pos == -1){
+            return;
+        }
+
+        let unit_h = h/4;
+        let real_y = cursor_info.unit*150 + (unit_h - (unit_h/10));
+        let k = (cursor_info.pos*10) + 5
+
+        p5.push()
+
+        //Drawing the cursor
+        p5.fill(0)
+        p5.rect(k-6,real_y, 1,-45)
+        p5.triangle(k-9,real_y-45, k-2, real_y-45, k-5, real_y-40)
+
+        //Drawing the square with the position
+        p5.fill(255)
+        p5.stroke(220)
+        p5.rect(k-25, real_y+2, 40, 20, 20)
+        p5.fill(0)
+        p5.textSize(9)
+        p5.textAlign(p5.CENTER)
+        p5.text((sp+(maxamino*cursor_info.unit)+cursor_info.pos).toString(), k-5, real_y+15)
+
+        p5.pop()
     }
 
     draw(){
-        this.recursive_unit_rendering()
+        this.render_units()
+        this.drawCursor()
     }
 
 }

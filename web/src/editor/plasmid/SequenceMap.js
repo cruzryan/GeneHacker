@@ -1,4 +1,5 @@
 import { GeneAMA } from "../GeneAMA";
+import { CircularMap } from "./CircularMap";
 
 let p5, w, h;
 //The sequence position to start drawing from
@@ -12,9 +13,17 @@ let maxamino = 0;
 let lastClicked = {x: null, y: null}
 
 let cursor_info = {
-    unit: -1,
-    pos: -1
+    unit: null,
+    pos: null
 } 
+
+//We use these later to delete / copy / paste aminoacids 
+let markers_info = {
+    m1: null,
+    m2: null,
+    //0 = no markers, 1 = one marker, 2 = two markers
+    num_shown: 0,
+}
 
 export class SequenceMap {
 
@@ -24,6 +33,10 @@ export class SequenceMap {
         h = height;
     }
 
+    //When we want to draw again
+    static loop(){
+        p5.loop()
+    }
 
     static resize(newWidth, newHeight){
         w = newWidth;
@@ -51,13 +64,71 @@ export class SequenceMap {
         }
     }
 
+    static addMarker(){
+        switch(markers_info.num_shown){
+            case 0: {
+                markers_info.m1 = sp+(maxamino*cursor_info.unit)+cursor_info.pos;
+                markers_info.num_shown = 1;
+            } break;
+
+            case 1: {
+                markers_info.m2 = sp+(maxamino*cursor_info.unit)+cursor_info.pos;
+                markers_info.num_shown = 2;
+            }break;
+
+            case 2: {
+                markers_info = {
+                    m1: null,
+                    m2: null,
+                    num_shown: 0,
+                }
+
+                CircularMap.clearSelection()
+            }
+        }
+
+        //Stop showing cursor
+        cursor_info = {
+            unit: null,
+            pos: null
+        } 
+        p5.loop()
+    }
+
+    static updateMarkers(m1, m2){
+        markers_info.m1 = m1;
+        markers_info.m2 = m2;
+        markers_info.num_shown = 2;
+
+        for(let i = 0; i < GeneAMA.getSequence().length; i+=maxamino){
+            if(i > m1){
+                sp = i - maxamino;
+                return;
+            }
+        }
+
+    }
+
+    static clearMarkers(){
+        markers_info.m1 = null;
+        markers_info.m2 = null;
+        markers_info.num_shown = 0;
+        p5.loop()
+    }
+
+
+    static getSelected(){
+        let start = markers_info.m1;
+        let end = markers_info.m2;
+        return [start, end]
+    }
+
     mouseClicked(e){
 
         //Check if user clicked on the letters
         cursor_info.unit = this.hitboxCheck()
         if(cursor_info.unit != -1){
             cursor_info.pos = this.mouse_to_sequence(cursor_info.unit)
-            console.log(cursor_info.pos)
         }
 
     }
@@ -71,14 +142,8 @@ export class SequenceMap {
                         sp -= maxamino;
                         p5.loop()
                     }else{
-                        let d = Math.abs(sp - maxamino);
-                        // console.log("d: ", d)
-                        // sp -= d;
-                        // p5.loop()
-                        //NEEDA FIX THIS YO
-                        //NEEDA FIX THIS YO
-                        //NEEDA FIX THIS YO
-                        //NEEDA FIX THIS YO
+                        sp = 0;
+                        p5.loop()
                     } 
  
             break;
@@ -113,7 +178,8 @@ export class SequenceMap {
     } 
 
     getCodon(amino_seq){
-        let aminos = amino_seq.toUpperCase().replace("T","U");
+        let aminos = amino_seq.toUpperCase().replace(/T/g,"U");
+        if ("GCU, GCC, GCA, GCG ".includes(aminos)) return "A";
         if ("AUU, AUC, AUA".includes(aminos)) return "I";
         if ("CGU, CGC, CGA, CGG; AGA, AGG".includes(aminos)) return "R";
         if ("CUU, CUC, CUA, CUG; UUA, UUG".includes(aminos)) return "L";
@@ -134,6 +200,7 @@ export class SequenceMap {
         if ("CAU, CAC".includes(aminos)) return "H";
         if ("GUU, GUC, GUA, GUG".includes(aminos)) return "V";
         if ("UAA, UGA, UAG".includes(aminos)) return "X";
+
         return "0";
     }
 
@@ -158,6 +225,7 @@ export class SequenceMap {
             case "Y": return "#4B8CA8";
             case "H": return "#71A7CD";
             case "V": return "#dfe7fd";
+            case "A": return "#EFD581";
             case "X": return "#f08080";
             case "0": return "#fff";
         }
@@ -253,7 +321,7 @@ export class SequenceMap {
 
             if(isCDS){
                 if(k > unit_w) break;
-                let codon = this.getCodon(sequence[seq_start+i]+sequence[seq_start+i]+sequence[seq_start+i])
+                let codon = this.getCodon(sequence[seq_start+i]+sequence[seq_start+i+1]+sequence[seq_start+i+2])
                 p5.fill(parseInt(codon[0]))
                 let color = this.getCodonColor(codon)
                 p5.fill(color)
@@ -261,6 +329,68 @@ export class SequenceMap {
                 p5.fill(12)
                 p5.text(codon, k+15, real_y-48)
             }            
+        }
+
+        //Draw highlighted genes & markers
+        if(markers_info.num_shown != 0){
+            // console.log(markers_info)
+            for(let i = 0; i < maxAminoacids; i++){
+                let k = (real_x*1.5) + (i*10)
+                if(k > unit_w) break;
+
+                if(markers_info.num_shown > 0 && seq_start+i == markers_info.m1){
+                    //Drawing the cursor
+                    p5.fill("#4479FF")
+                    p5.stroke("#4479FF")
+                    p5.rect(k,real_y, 1,-45)
+                    p5.triangle(k-3,real_y-45, k+4, real_y-45, k+1, real_y-40)
+            
+                    //Drawing the square with the position
+                    p5.fill(255)
+                    p5.stroke(220)
+                    p5.rect(k-19, real_y+2, 40, 20, 20)
+                    p5.fill(0)
+                    p5.textSize(9)
+                    p5.textAlign(p5.CENTER)
+                    p5.text(markers_info.m1.toString(), k+1, real_y+15)
+                }
+
+                if(seq_start+i == markers_info.m2){
+                    //Drawing the cursor
+                    p5.fill("#4479FF")
+                    p5.stroke("#4479FF")
+                    p5.rect(k,real_y, 1,-45)
+                    p5.triangle(k-3,real_y-45, k+4, real_y-45, k+1, real_y-40)
+            
+                    //Drawing the square with the position
+                    p5.fill(255)
+                    p5.stroke(220)
+                    p5.rect(k-19, real_y+2, 40, 20, 20)
+                    p5.fill(0)
+                    p5.textSize(9)
+                    p5.textAlign(p5.CENTER)
+                    p5.text(markers_info.m2.toString(), k+1, real_y+15)
+                }
+
+                p5.noStroke()
+                if(markers_info.num_shown == 2){
+                    if(seq_start+i >= markers_info.m1 && seq_start+i < markers_info.m2){
+                        p5.fill(68, 121, 255, 23)
+                        p5.rect(k+1,real_y-40,10,39);
+                    }    
+                }
+            }       
+        }
+
+        if(feature_data.length == 0){
+            p5.noStroke()
+            p5.fill("#00e676")
+            p5.rect(real_x,real_y-80, unit_w-10, 12, 20, 0,0,20);
+            p5.triangle(unit_w-10, real_y-80+12, unit_w-10, real_y-80, unit_w, real_y-80+6)
+            p5.fill("#fff")
+            p5.stroke("#fff")
+            p5.textSize(11)
+            p5.text("source", real_x+80, real_y-80+10)
         }
 
         //Draw feature titles 
@@ -344,22 +474,31 @@ export class SequenceMap {
         }
     } 
 
-
-    drawCursor(){
+    drawCursor(unit, pos, dynamic_sp, color){
 
         //If nothing has ben clicked, don't draw a cursor
-        if(cursor_info.unit == -1 || cursor_info.pos == -1){
+        if(unit == null || pos == null){
+            return;
+        }
+
+        //This decided when and when not to show the cursor
+        let pos_map = (sp+(maxamino*unit)+pos);
+        if(dynamic_sp != null && pos_map != dynamic_sp+(maxamino*unit)+pos){
+            return;
+        }
+
+        if(pos_map < 0 || pos_map < sp){
             return;
         }
 
         let unit_h = h/4;
-        let real_y = cursor_info.unit*150 + (unit_h - (unit_h/10));
-        let k = (cursor_info.pos*10) + 5
+        let real_y = unit*150 + (unit_h - (unit_h/10));
+        let k = (pos*10) + 5
 
         p5.push()
-
         //Drawing the cursor
-        p5.fill(0)
+        p5.fill(color)
+        p5.stroke(color)
         p5.rect(k-6,real_y, 1,-45)
         p5.triangle(k-9,real_y-45, k-2, real_y-45, k-5, real_y-40)
 
@@ -370,14 +509,13 @@ export class SequenceMap {
         p5.fill(0)
         p5.textSize(9)
         p5.textAlign(p5.CENTER)
-        p5.text((sp+(maxamino*cursor_info.unit)+cursor_info.pos).toString(), k-5, real_y+15)
-
+        p5.noStroke()
+        p5.text(pos_map.toString(), k-5, real_y+15)
         p5.pop()
     }
-
     draw(){
         this.render_units()
-        this.drawCursor()
+        this.drawCursor(cursor_info.unit, cursor_info.pos, null, "#000");
     }
 
 }

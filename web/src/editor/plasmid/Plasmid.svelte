@@ -2,7 +2,8 @@
   import { CircularMap } from "./CircularMap";
   import { SequenceMap } from "./SequenceMap";
   import { editor_info } from "../../store";
-  
+  import { GeneAMA } from "../GeneAMA";
+
   import { watchResize } from "svelte-watch-resize";
 
   let editorinfo;
@@ -29,20 +30,20 @@
     let char = typeof event !== "undefined" ? event.keyCode : event.which;
     k = String.fromCharCode(char);
 
-    if(k == "s"){
-        CircularMap.activateSelection();
+
+    if(editorinfo.show_replace) return;
+
+    switch(k){
+
+      case "s": CircularMap.activateSelection(); break; 
+      case "m": SequenceMap.addMarker(); break; 
+      case "r": {
+              let new_editinfo = editorinfo;
+              new_editinfo.show_replace = true;
+              editor_info.set(new_editinfo)
+      }break;
     }
 
-    if(char == '39'){
-        SequenceMap.moveCursor("right");
-    }
-
-    if(char == '37'){
-        SequenceMap.moveCursor("left");
-    }
-    console.log(char)
-
-    // p5.loop()
   };
 
   /*---------------- Circular Map -------------------------- */
@@ -79,8 +80,6 @@
     p5.setup = () => {
       let sz = getLowestVal(w, h);
       p5.createCanvas(sz, sz);
-      // p5.textFont("Oxygen");
-      // p5.noLoop()
     }
 
     p5.draw = () => {
@@ -115,6 +114,92 @@
     }
 
   });
+
+  //EDITOR HELPER FUNCTIONS
+
+  let replace_input = "";
+
+  function stopReplace(){
+    let new_editinfo = editorinfo;
+    new_editinfo.show_replace = false;
+    editor_info.set(new_editinfo)
+    replace_input = "";
+  }
+
+  function handleReplace(){
+
+      let [start, end] = SequenceMap.getSelected()
+
+      if(replace_input === "" || start === null || end === null) return;
+
+      //Can't replace if input is bigger than the thing to replace.
+
+      console.log("SE: ", start,end)
+      console.log("I: ", replace_input)
+
+      let final_sequence = "";
+      for(let i = 0; i < replace_input.length; i++){
+        let c = replace_input[i];
+
+        let isAmino = c == 'a' || c == 't' || c == 'g' || c == 'c';
+
+        if(isAmino){
+          final_sequence += c;
+        }else{
+          console.log("COULDN'T PASSING: ", c)
+          final_sequence += RNA_to_DNA(codon_to_RNA(c.toUpperCase()));
+        }
+      }
+
+      /*if the thing replacing isn't the same length, don't replace
+      This is important because if the change the size of
+      the gene sequence, we must also alter the features
+      */
+      if(final_sequence.length != (end-start)){
+        stopReplace()
+        console.log("Out of bounds replace error. e-s was: ", end-start, " but len was: ", final_sequence, "final_sequence")
+        return;
+      }
+
+      let oldseq = GeneAMA.getSequence();
+      let newseq = oldseq.substring(0,start) + final_sequence + oldseq.substring(end);
+      GeneAMA.updateSequence(newseq)
+      SequenceMap.loop()
+      console.log("FINAL SEQ:", final_sequence)
+      stopReplace()
+  }
+
+  function RNA_to_DNA(RNA){
+    return RNA.toLowerCase().replace(/u/g,"t")
+  }
+
+  function codon_to_RNA(codon){
+    switch(codon){
+      case 'A': return "GCU";
+      case 'I': return "AUU";
+      case 'R': return "CGU";
+      case 'L': return "CUU";
+      case 'N': return "AAU";
+      case 'K': return "AAA";
+      case 'D': return "GAU";
+      case 'M': return "AUG";
+      case 'F': return "UUU";
+      case 'C': return "UGU";
+      case 'P': return "CCU";
+      case 'Q': return "CAA";
+      case 'S': return "UCU";
+      case 'E': return "GAA";
+      case 'T': return "ACU";
+      case 'W': return "UGG";
+      case 'G': return "GGU";
+      case 'Y': return "UAU";
+      case 'H': return "CAU";
+      case 'V': return "GUU";
+      case 'X': return "UAA";
+      default: return "";
+    }
+  }
+
 </script>
 
 <main>
@@ -157,6 +242,19 @@
     <div id="sequencemap" class="second-canvas"></div>
   </div>
   {/if}
+
+  {#if editorinfo.show_replace == true}
+  <div class="whitebg">    
+    <div class="replace">
+      <h1>Remplazar</h1>
+      <input bind:value={replace_input} type="text" placeholder="Ingresa codones o secuencias...">
+      <div classs="buttons">
+      <button class="cancel" on:click={stopReplace}>Cancelar</button>
+      <button class="ok" on:click={handleReplace}>Listo</button>
+      </div>
+    </div>
+  </div>
+  {/if}
 </main>
 
 <style>
@@ -167,7 +265,72 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
+  }
 
+  .whitebg{
+    display:  flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 99.5%;
+    height:  70%;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 3;
+
+  }
+
+  .replace{
+    display:  flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width:  500px;
+    height:  200px;
+    background-color: white;
+    box-shadow: 0px 0px 10px rgba(51, 51, 51, 0.3);
+    border-radius: 5px;
+  }
+
+  .replace h1{
+    font-size: 19px;
+    margin-bottom: 1em;
+  }
+
+  .replace input{
+    padding:  0.5em 0.5em  0.5em 2em;
+    border-radius: 5px;
+    border:  1px solid rgba(51, 51, 51, 0.3);
+  }
+
+  .buttons{
+    display:  flex;
+    flex-direction: row;
+  }
+
+  .replace button{
+    padding: 0.5em 0.5em;
+    width: 120px;
+    cursor: pointer;
+    border-radius: 15px;
+    border:  none;
+    background-color: #fff;
+    color:  black;
+    margin-top: 1.5em;
+    border: 1px solid black;
+    background-color: white !important;
+    border: 1px solid rgba(51, 51, 51, 0.3) !important;
+    color: black !important;
+  }
+
+  .cancel:hover{
+    border: 1px solid rgba(51, 51, 51, 0.7) !important;
+  }
+
+  .ok:hover{
+    background-color: #4479FF !important;
+    color: white !important;
+    border:  none !important;
   }
 
   .main-canvas{
@@ -200,7 +363,7 @@
     width:  25px;
     height:  25px;
     cursor:  pointer;
-    opacity: 0.8;
+    opacity: 0.7;
     margin-left: 2em;
   }
 

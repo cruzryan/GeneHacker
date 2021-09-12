@@ -74,6 +74,24 @@ export class CircularMap {
                 y: 0,
             }
         }
+        SequenceMap.clearMarkers()
+        p5.loop();
+    }
+
+    static clearSelection(){
+        showSelection = false;
+        number_of_clicks = 0;
+        selectionCords = {
+            p1: {
+                x: 0,
+                y: 0,
+            },
+
+            p2: {
+                x: 0,
+                y: 0,
+            }
+        }
         p5.loop();
     }
 
@@ -98,7 +116,7 @@ export class CircularMap {
 
             let b1 = this.angle_to_base(this.point_to_angle(selectionCords.p1.x, selectionCords.p1.y));
             let b2 = this.angle_to_base(this.point_to_angle(selectionCords.p2.x, selectionCords.p2.y))
-
+            SequenceMap.updateMarkers(b1, b2);
         }
 
         if (number_of_clicks <= 2) {

@@ -43,6 +43,10 @@ export class GeneAMA{
         
     }
 
+    static updateSequence(newSequence){
+        plasmid.DNA = newSequence;        
+    }
+
     //Returns an array of feature datas;
     static getFeatureDataFromPosition(position){     
 

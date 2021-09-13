@@ -93,20 +93,26 @@ export class SequenceMap {
             pos: null
         } 
         p5.loop()
-    }
+    } 
 
     static updateMarkers(m1, m2){
         markers_info.m1 = m1;
         markers_info.m2 = m2;
         markers_info.num_shown = 2;
+        this.goto(m1, false)
+    }
 
+    static goto(pos, moveCursor){
         for(let i = 0; i < GeneAMA.getSequence().length; i+=maxamino){
-            if(i > m1){
+            if(i > pos){
                 sp = i - maxamino;
+                if(moveCursor === true){
+                    cursor_info.unit = 0;
+                    cursor_info.pos = pos - sp;    
+                }
                 return;
             }
         }
-
     }
 
     static clearMarkers(){
@@ -121,6 +127,10 @@ export class SequenceMap {
         let start = markers_info.m1;
         let end = markers_info.m2;
         return [start, end]
+    }
+
+    static getNumberOfMarkers(){
+        return markers_info.num_shown;
     }
 
     mouseClicked(e){

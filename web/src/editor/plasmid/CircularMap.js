@@ -95,6 +95,16 @@ export class CircularMap {
         p5.loop();
     }
 
+    static loop(){
+        sequence = GeneAMA.getSequence()
+        allArrows = []
+        lvl0 = []
+        lvl1 = []
+        lvl2 = []
+        self.calculateArrows()
+        p5.loop();
+    }
+
     static resize(newWidth, newHeight) {
         w = newWidth
         h = newHeight
@@ -522,7 +532,6 @@ export class CircularMap {
 
     calculateArrows() {
         let features = GeneAMA.getFeatures()
-
         features.forEach(f => {
 
             if (f.label == undefined || f.label == "") {

@@ -1,6 +1,7 @@
 <script>
   import { CircularMap } from "./CircularMap";
   import { SequenceMap } from "./SequenceMap";
+  import Insert from "./Insert.svelte";
   import { editor_info } from "../../store";
   import { GeneAMA } from "../GeneAMA";
 
@@ -25,6 +26,10 @@
     return v;
   }
 
+  //Variables to handle sequence copying
+  let copyval;
+  let textarea;
+
   let k;
   document.onkeypress = function (event) {
     let char = typeof event !== "undefined" ? event.keyCode : event.which;
@@ -36,12 +41,25 @@
     switch(k){
 
       case "s": CircularMap.activateSelection(); break; 
-      case "m": SequenceMap.addMarker(); break; 
+      case "m": {
+        SequenceMap.addMarker(); 
+        let numShown = SequenceMap.getNumberOfMarkers();
+        if (numShown == 2){
+          let [start, end] = SequenceMap.getSelected()
+          if(start === null || end === null) return;
+          let seq = GeneAMA.getSequence().substring(start,end);
+          copyval = seq;
+        }
+      }break; 
       case "r": {
+              if(editorinfo.screen_on_top_showing) return;
               let new_editinfo = editorinfo;
               new_editinfo.show_replace = true;
+              new_editinfo.screen_on_top_showing = true;
               editor_info.set(new_editinfo)
       }break;
+
+      case "g": { showGoto() }break;
     }
 
   };
@@ -72,7 +90,6 @@
   };
 
   /*---------------- Sequence Map -------------------------- */
-
 
   let sequencemap = (p5) => {
     let SM = new SequenceMap(p5, getLowestVal(w, h), getLowestVal(w, h))
@@ -115,13 +132,112 @@
 
   });
 
-  //EDITOR HELPER FUNCTIONS
+
+  /*----------- COPY -------------*/
+  function copySequence(){
+    textarea.select();
+    document.execCommand('copy');
+  }
+
+  /*----------- CUT -------------*/
+
+  function cutSequence(){
+    textarea.select();
+    document.execCommand('copy');
+    deleteSequence()
+  }
+
+  /*----------- DELETE -------------*/
+
+  function deleteSequence(){
+      let [start, end] = SequenceMap.getSelected()
+      if(start === null || end === null) return;
+
+      let oldseq = GeneAMA.getSequence();
+      let newseq = oldseq.substring(0,start) + oldseq.substring(end);
+      GeneAMA.updateSequence(newseq)
+
+      let lenDeleted = end-start;
+
+      let Allf = GeneAMA.getFeatures();
+      let newF = [];
+
+      for(let i = 0; i < Allf.length; i++){
+
+        if(start < Allf[i].start && end > Allf[i].end){
+          continue;
+        }
+
+        if(start > Allf[i].start && end < Allf[i].end){
+          let f = Allf[i];
+          f.end =  Allf[i].end - lenDeleted;
+          newF.push(f);
+          continue;
+        }
+
+        if(start < Allf[i].end){
+
+          let f = Allf[i];
+
+          f.start = Allf[i].start - lenDeleted;
+          f.end =  Allf[i].end - lenDeleted;
+
+          newF.push(f);
+        }else{
+          newF.push(Allf[i])
+        }
+      }
+
+      GeneAMA.updateFeatures(newF);
+      SequenceMap.loop()
+      CircularMap.loop()
+
+  }
+  
+  /*----------- GOTO -------------*/
+    
+  let goto_input = "";
+
+  function showGoto(){
+    let new_editinfo = editorinfo;
+    if(editorinfo.screen_on_top_showing) return;
+    new_editinfo.show_goto = true;
+    new_editinfo.screen_on_top_showing = true;
+    editor_info.set(new_editinfo)    
+    goto_input = "";
+  }
+
+  function stopGoto(){
+      let new_editinfo = editorinfo;
+      new_editinfo.show_goto = false;
+      new_editinfo.screen_on_top_showing = false;
+      editor_info.set(new_editinfo)    
+      goto_input = "";
+  }
+
+  function handleGoto(){
+    if(goto_input == "" || !isNumeric(goto_input)){
+      stopGoto()
+      return;
+    }
+
+    SequenceMap.goto(parseInt(goto_input), true)
+    SequenceMap.loop()
+    stopGoto()
+  }
+
+  function isNumeric(value) {
+      return /^-?\d+$/.test(value);
+  }
+ 
+  /*----------- REPLACE -------------*/
 
   let replace_input = "";
 
   function stopReplace(){
     let new_editinfo = editorinfo;
     new_editinfo.show_replace = false;
+    new_editinfo.screen_on_top_showing = false;
     editor_info.set(new_editinfo)
     replace_input = "";
   }
@@ -131,11 +247,8 @@
       let [start, end] = SequenceMap.getSelected()
 
       if(replace_input === "" || start === null || end === null) return;
-
+ 
       //Can't replace if input is bigger than the thing to replace.
-
-      console.log("SE: ", start,end)
-      console.log("I: ", replace_input)
 
       let final_sequence = "";
       for(let i = 0; i < replace_input.length; i++){
@@ -146,7 +259,6 @@
         if(isAmino){
           final_sequence += c;
         }else{
-          console.log("COULDN'T PASSING: ", c)
           final_sequence += RNA_to_DNA(codon_to_RNA(c.toUpperCase()));
         }
       }
@@ -165,7 +277,6 @@
       let newseq = oldseq.substring(0,start) + final_sequence + oldseq.substring(end);
       GeneAMA.updateSequence(newseq)
       SequenceMap.loop()
-      console.log("FINAL SEQ:", final_sequence)
       stopReplace()
   }
 
@@ -208,19 +319,19 @@
   <div class="right-side">
     <div class="tooltip">
       
-      <div class="icon">
+      <div class="icon" on:click={copySequence}>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
         </svg>
       </div>
 
-      <div class="icon">
+      <div class="icon" on:click={cutSequence}>
        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
         </svg>
       </div>
 
-      <div class="icon">
+      <div class="icon" on:click={deleteSequence}>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
       </svg>
@@ -232,7 +343,7 @@
         </svg>
       </div>
 
-      <div class="icon">
+      <div class="icon" on:click={showGoto}>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
@@ -246,15 +357,36 @@
   {#if editorinfo.show_replace == true}
   <div class="whitebg">    
     <div class="replace">
-      <h1>Remplazar</h1>
-      <input bind:value={replace_input} type="text" placeholder="Ingresa codones o secuencias...">
-      <div classs="buttons">
-      <button class="cancel" on:click={stopReplace}>Cancelar</button>
-      <button class="ok" on:click={handleReplace}>Listo</button>
+      <h1>Replace</h1>
+      <input bind:value={replace_input} type="text" placeholder="Type any codon or sequence here...">
+      <div class="buttons">
+      <button class="cancel" on:click={stopReplace}>Cancel</button>
+      <button class="ok" on:click={handleReplace}>Done</button>
       </div>
     </div>
   </div>
   {/if}
+
+  {#if editorinfo.show_goto == true}
+  <div class="whitebg">    
+    <div class="replace">
+      <h1>Go to</h1>
+      <input bind:value={goto_input} type="text" placeholder="Where do you want to go?">
+      <div>
+      <button class="cancel" on:click={stopGoto}>Cancel</button>
+      <button class="ok" on:click={handleGoto}>Go</button>
+      </div>
+    </div>
+  </div>
+  {/if}
+
+  {#if editorinfo.show_insert == true}
+    <Insert/>
+  {/if}
+
+
+  <textarea bind:value={copyval} bind:this={textarea} class="copyarea"></textarea>
+
 </main>
 
 <style>
@@ -268,6 +400,15 @@
     overflow: hidden;
   }
 
+
+  .copyarea{
+    position: absolute;
+    left:  -100vh;
+    right:  -100vw;
+    z-index: -1;
+    display:  hidden;
+  }
+
   .whitebg{
     display:  flex;
     align-items: center;
@@ -277,7 +418,6 @@
     height:  70%;
     background-color: rgba(255, 255, 255, 0.7);
     z-index: 3;
-
   }
 
   .replace{
@@ -301,11 +441,6 @@
     padding:  0.5em 0.5em  0.5em 2em;
     border-radius: 5px;
     border:  1px solid rgba(51, 51, 51, 0.3);
-  }
-
-  .buttons{
-    display:  flex;
-    flex-direction: row;
   }
 
   .replace button{

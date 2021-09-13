@@ -39,8 +39,8 @@ export class GeneAMA{
         return plasmid.Keywords;
     }
 
-    static updateFeature(){
-        
+    static updateFeatures(features){
+        plasmid.Features = features;
     }
 
     static updateSequence(newSequence){

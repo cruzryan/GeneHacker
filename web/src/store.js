@@ -6,7 +6,13 @@ export const current_screen = writable("EDITOR");
 
 export const editor_info = writable({
     split_window: false,
+    
+    screen_on_top_showing: false,
     show_replace: false,
+    show_goto: false,
+    show_insert: true,
+
+
     left_panel: {
     current_tab: 0,
     tabs: [{

@@ -1,21 +1,122 @@
 <script>
 	
+  import { editor_info } from "../../store";
+  import {SequenceMap} from "./SequenceMap";
+  import {CircularMap} from "./CircularMap";
+  import { GeneAMA } from "../GeneAMA";
+	import { Proteins } from "./Proteins";
+
+  let editorinfo;
+
+  editor_info.subscribe(value => {
+		editorinfo = value;
+	});
 
 	//Screens: menu, sequence, protein
-	let screenToShow = "sequence";
+	let screenToShow = "menu";
 
 	function showSequenceScreen(){screenToShow = "sequence"}
 	function showProteinScreen(){screenToShow = "protein"}
 
 	let insert_sequence_input = "";
-	let insert_sequence_name = "";
 	function stopInsert(){
-
+    screenToShow = "menu";
+		let new_editinfo = editorinfo;
+    new_editinfo.show_insert = false;
+    new_editinfo.screen_on_top_showing = false;
+    editor_info.set(new_editinfo)
+    insert_sequence_input = "";
 	}
 
 	function handleInsertSequence(){
 
+      let [cursor, _] = SequenceMap.getSelected()
+
+      if(cursor == null) return;
+
+      let oldseq = GeneAMA.getSequence();
+      let final_sequence = "";
+
+      for(let i = 0; i < insert_sequence_input.length; i++){
+
+      	let c = insert_sequence_input[i];
+        let isAmino = c == 'a' || c == 't' || c == 'g' || c == 'c';
+
+        if(isAmino){
+          final_sequence += c;
+        }else{
+          final_sequence += RNA_to_DNA(codon_to_RNA(c.toUpperCase()));
+        }
+
+      }
+      let newseq = oldseq.substring(0,cursor) + final_sequence + oldseq.substring(cursor);
+
+      GeneAMA.updateSequence(newseq)
+
+      let f = GeneAMA.getFeatures();
+      let newF = [];
+
+      for(let i = 0; i < f.length; i++){
+      	if(cursor > f[i].start  &&  cursor < f[i].end){
+      		f[i].end += final_sequence.length;
+      	}
+
+      	if(cursor < f[i].start){
+      		f[i].start += final_sequence.length;
+      		f[i].end += final_sequence.length;
+      	}
+      		
+      		newF.push(f[i])
+      }
+
+
+			SequenceMap.updateMarkers(cursor, cursor+final_sequence.length)
+
+      SequenceMap.loop()
+      CircularMap.loop()
+
+      stopInsert()
+
 	}
+
+	function RNA_to_DNA(RNA){
+    return RNA.toLowerCase().replace(/u/g,"t")
+  }
+
+  function codon_to_RNA(codon){
+    switch(codon){
+      case 'A': return "GCU";
+      case 'I': return "AUU";
+      case 'R': return "CGU";
+      case 'L': return "CUU";
+      case 'N': return "AAU";
+      case 'K': return "AAA";
+      case 'D': return "GAU";
+      case 'M': return "AUG";
+      case 'F': return "UUU";
+      case 'C': return "UGU";
+      case 'P': return "CCU";
+      case 'Q': return "CAA";
+      case 'S': return "UCU";
+      case 'E': return "GAA";
+      case 'T': return "ACU";
+      case 'W': return "UGG";
+      case 'G': return "GGU";
+      case 'Y': return "UAU";
+      case 'H': return "CAU";
+      case 'V': return "GUU";
+      case 'X': return "UAA";
+      default: return "";
+    }
+  }
+
+  let protein_input = "";
+  let proteins_to_display = Proteins.lookUp(protein_input);
+
+  function insertProtein(seq){
+  	insert_sequence_input = seq;
+  	handleInsertSequence();
+  }
 
 </script>
 
@@ -51,6 +152,27 @@
 		</div>		
 	{/if}
 
+	{#if screenToShow == "protein"}
+		<div class="container bigcontainer ">
+				<h1>Insert protein</h1>
+      	<input on:input={()=>proteins_to_display = Proteins.lookUp(protein_input)} bind:value={protein_input} type="text" placeholder="What are you looking for?">
+
+      	<div class="protein-container">
+
+      		{#each proteins_to_display as {name, desc, sequence}}
+      			<div class="protein" on:click={() => insertProtein(sequence)}>
+      					<h2>{name}</h2>
+      					<h3>{desc}</h3>
+      			</div>
+      		{/each}
+      	</div>
+      	<div class="buttons">
+      			<button class="cancel" on:click={stopInsert}>Cancel</button>
+      		</div>
+		</div>
+	{/if}
+
+
 </main>
 
 <style>
@@ -68,16 +190,73 @@
     	background-color: rgba(255, 255, 255, 0.7);
 	}
 
+	.bigcontainer{
+		min-width:  400px !important;
+		min-height:  370px !important;
+
+		height:  80%;
+    justify-content: start !important;
+	}
+
+	.bigcontainer h1{
+			margin-top: 2em !important;
+	}
+
+	.bigcontainer input{
+		border:  1px solid rgba(171, 171, 171, 0.3) !important;
+	}
+
+	.protein-container{
+		width: 80%;
+		height: 70%;
+	}
+
+	.protein{
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		width: 100%;
+		height: 70px;
+		box-shadow: 0px 0px 3px rgba(171, 171, 171, 0.3);
+		cursor:  pointer;
+		margin-top: 5%;
+	}
+
+	.protein:hover{
+		transform: scale(1.05);
+	}
+
+	.protein h2{
+		font-size: 17px;
+		margin-left: 5%;
+		font-weight: 500;
+		width: 250px;
+  	white-space: nowrap;
+  	overflow: hidden;
+ 		text-overflow: ellipsis;
+	}
+
+	.protein h3{
+		font-size: 15px;
+		font-weight: 500;
+		margin-left: 5%;
+		color: rgba(151, 151, 151, 1.0);
+		width: 250px;
+  	white-space: nowrap;
+  	overflow: hidden;
+ 		text-overflow: ellipsis;
+	}	
+
 	.container{
 		min-width:  400px;
 		min-height:  230px;
 		background-color: white;
 		box-shadow: 0px 0px 10px rgba(171, 171, 171, 0.3);
-    	border-radius: 5px;
-    	display:  flex;
-    	flex-direction: column;
-    	align-items: center !important;
-    	justify-content: center !important;
+    border-radius: 5px;
+    display:  flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 	}
 
 	.container h1{

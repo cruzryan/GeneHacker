@@ -36,7 +36,7 @@
     k = String.fromCharCode(char);
 
 
-    if(editorinfo.show_replace) return;
+    if(editorinfo.screen_on_top_showing) return;
 
     switch(k){
 
@@ -52,7 +52,6 @@
         }
       }break; 
       case "r": {
-              if(editorinfo.screen_on_top_showing) return;
               let new_editinfo = editorinfo;
               new_editinfo.show_replace = true;
               new_editinfo.screen_on_top_showing = true;
@@ -63,7 +62,7 @@
     }
 
   };
-
+ 
   /*---------------- Circular Map -------------------------- */
 
   let circularmap = (p5) => {
@@ -193,7 +192,45 @@
       CircularMap.loop()
 
   }
+
+  /*----------- INSERT -------------*/
+
+  function showInsert(){
+    let new_editinfo = editorinfo;
+    new_editinfo.show_insert = true;
+    new_editinfo.screen_on_top_showing = true;
+    editor_info.set(new_editinfo)
+  }
+
+  /*----------- NEW FEATURE -------------*/
+
+  let feature_input = "";
+
+  function showNewFeature(){
+    let new_editinfo = editorinfo;
+    new_editinfo.show_new_feature = true;
+    new_editinfo.screen_on_top_showing = true;
+    editor_info.set(new_editinfo)
+  }
   
+
+  function stopNewFeature(){
+    let new_editinfo = editorinfo;
+    new_editinfo.show_new_feature = false;
+    new_editinfo.screen_on_top_showing = false;
+    editor_info.set(new_editinfo)
+  }
+
+  function handleNewFeature(){
+    let [start, end] = SequenceMap.getSelected()
+      if(start === null || end === null) return;
+
+      GeneAMA.addFeature(start, end, feature_input);
+      SequenceMap.loop()
+      CircularMap.loop()
+      stopNewFeature()
+  }
+
   /*----------- GOTO -------------*/
     
   let goto_input = "";
@@ -337,9 +374,15 @@
       </svg>
       </div>
 
-      <div class="icon">
+      <div class="icon" on:click={showInsert}>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+      </div>
+
+      <div class="icon" on:click={showNewFeature}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
         </svg>
       </div>
 
@@ -366,6 +409,21 @@
     </div>
   </div>
   {/if}
+
+
+  {#if editorinfo.show_new_feature == true}
+  <div class="whitebg">    
+    <div class="replace">
+      <h1>Name feature</h1>
+      <input bind:value={feature_input} type="text" placeholder="Type a name...">
+      <div class="buttons">
+      <button class="cancel" on:click={stopNewFeature}>Cancel</button>
+      <button class="ok" on:click={handleNewFeature}>Done</button>
+      </div>
+    </div>
+  </div>
+  {/if}
+
 
   {#if editorinfo.show_goto == true}
   <div class="whitebg">    

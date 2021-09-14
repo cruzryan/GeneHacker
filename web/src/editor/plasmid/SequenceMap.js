@@ -1,5 +1,6 @@
 import { GeneAMA } from "../GeneAMA";
 import { CircularMap } from "./CircularMap";
+import { editor_info } from "../../store";
 
 let p5, w, h;
 //The sequence position to start drawing from
@@ -24,6 +25,12 @@ let markers_info = {
     //0 = no markers, 1 = one marker, 2 = two markers
     num_shown: 0,
 }
+
+ let editorinfo;
+
+  editor_info.subscribe(value => {
+        editorinfo = value;
+    });
 
 export class SequenceMap {
 
@@ -56,7 +63,6 @@ export class SequenceMap {
     }
 
     static moveCursor(dir){
-        console.log("moving cursor!")
         if(dir == "right"){
             cursor_info.pos++;
         }else{
@@ -135,6 +141,7 @@ export class SequenceMap {
 
     mouseClicked(e){
 
+        if(editorinfo.screen_on_top_showing) return;
         //Check if user clicked on the letters
         cursor_info.unit = this.hitboxCheck()
         if(cursor_info.unit != -1){
@@ -144,6 +151,8 @@ export class SequenceMap {
     }
 
     scroll(dir){
+        if(editorinfo.screen_on_top_showing) return;
+
         let seq = GeneAMA.getSequence()
 
         switch(dir){

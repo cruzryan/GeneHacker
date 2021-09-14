@@ -10,7 +10,8 @@ export const editor_info = writable({
     screen_on_top_showing: false,
     show_replace: false,
     show_goto: false,
-    show_insert: true,
+    show_insert: false,
+    show_new_feature: false,
 
 
     left_panel: {

@@ -43,6 +43,16 @@ export class GeneAMA{
         plasmid.Features = features;
     }
 
+    static addFeature(start, end, label){
+        let f = {
+            Kind: "any",
+            note: "",
+            start, end, label
+        }
+        plasmid.Features.push(f);
+        console.log("added: ", f);
+    }
+
     static updateSequence(newSequence){
         plasmid.DNA = newSequence;        
     }

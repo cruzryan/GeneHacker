@@ -35,7 +35,8 @@
     let char = typeof event !== "undefined" ? event.keyCode : event.which;
     k = String.fromCharCode(char);
 
-
+    //If the window is split then SequenceMap is not showing
+    if(editorinfo.split_window) return;
     if(editorinfo.screen_on_top_showing) return;
 
     switch(k){

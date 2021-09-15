@@ -42,16 +42,21 @@ export class SequenceMap {
 
     //When we want to draw again
     static loop(){
+        if(editorinfo.split_window) return;
         p5.loop()
     }
 
     static resize(newWidth, newHeight){
+        if(editorinfo.split_window) return;
         w = newWidth;
         h = newHeight;
     }
 
 
     static goToFeature(feature_name){
+        if(editorinfo.split_window) return;
+        console.log(editorinfo)
+        console.log(editorinfo.split_window)
         let ft = GeneAMA.getFeatures();
         for(let i = 0; i < ft.length; i++){
             if(ft[i].label == feature_name){
@@ -63,6 +68,7 @@ export class SequenceMap {
     }
 
     static moveCursor(dir){
+        if(editorinfo.split_window) return;
         if(dir == "right"){
             cursor_info.pos++;
         }else{
@@ -71,6 +77,7 @@ export class SequenceMap {
     }
 
     static addMarker(){
+        if(editorinfo.split_window) return;
         switch(markers_info.num_shown){
             case 0: {
                 markers_info.m1 = sp+(maxamino*cursor_info.unit)+cursor_info.pos;
@@ -102,6 +109,7 @@ export class SequenceMap {
     } 
 
     static updateMarkers(m1, m2){
+        if(editorinfo.split_window) return;
         markers_info.m1 = m1;
         markers_info.m2 = m2;
         markers_info.num_shown = 2;
@@ -109,6 +117,7 @@ export class SequenceMap {
     }
 
     static goto(pos, moveCursor){
+        if(editorinfo.split_window) return;
         for(let i = 0; i < GeneAMA.getSequence().length; i+=maxamino){
             if(i > pos){
                 sp = i - maxamino;
@@ -122,6 +131,8 @@ export class SequenceMap {
     }
 
     static clearMarkers(){
+        if(editorinfo.split_window) return;
+        console.log(editorinfo.split_window)
         markers_info.m1 = null;
         markers_info.m2 = null;
         markers_info.num_shown = 0;
@@ -130,12 +141,14 @@ export class SequenceMap {
 
 
     static getSelected(){
+        if(editorinfo.split_window) return;
         let start = markers_info.m1;
         let end = markers_info.m2;
         return [start, end]
     }
 
     static getNumberOfMarkers(){
+        if(editorinfo.split_window) return;
         return markers_info.num_shown;
     }
 

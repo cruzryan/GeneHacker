@@ -1,6 +1,7 @@
 <script>
   import Tab from "./Tab.svelte";
   import Plasmid from "./plasmid/Plasmid.svelte";
+  import TextEditor from "./TextEditor.svelte";
   import { GeneAMA } from "./GeneAMA";
   import { getData } from "../store";
   import { editor_info } from "../store";
@@ -38,7 +39,9 @@
       </div>
 
       <div class="panel">
+        {#if left_tab.type == "plasmid"}
         <Plasmid />
+        {/if}
       </div>
     </div>
     {#if editorinfo.split_window == true}
@@ -47,7 +50,9 @@
         <Tab text="Sars-Cov-2 Findings" icon_type="lab" />
       </div>
 
-      <div class="panel" />
+      <div class="panel">
+        <TextEditor/>
+      </div>
     </div>
     {/if}
   </div>
@@ -109,7 +114,7 @@
     display: flex;
     flex-direction: row;
     overflow-x: scroll;
-
+    scrollbar-width: none !important;
     scrollbar-width: none;
   }
 

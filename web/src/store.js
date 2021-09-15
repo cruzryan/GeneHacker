@@ -5,7 +5,7 @@ import { writable } from 'svelte/store';
 export const current_screen = writable("EDITOR");
 
 export const editor_info = writable({
-    split_window: false,
+    split_window: true,
     
     screen_on_top_showing: false,
     show_replace: false,

@@ -1,6 +1,8 @@
 <script>
   import Tab from "./Tab.svelte";
   import Plasmid from "./plasmid/Plasmid.svelte";
+  import FilePicker from "./FilePicker.svelte";
+  import Menu from "./Menu.svelte";
   import TextEditor from "./TextEditor.svelte";
   import { GeneAMA } from "./GeneAMA";
   import { getData } from "../store";
@@ -26,11 +28,17 @@
 </script>
 
 <main>
+  {#if editorinfo.show_filepicker == true}
+    <FilePicker/>
+  {/if}
   <div class="menubar">
     <h1 class="menubar-item">FILE</h1>
     <h1 class="menubar-item">VIEW</h1>
     <h1 class="menubar-item">HELP</h1>
   </div>
+  {#if editorinfo.show_menu == true}
+    <Menu/>
+  {/if}
 
   <div class="windows">
     <div class="window">

@@ -19,7 +19,7 @@ export class GeneAMA{
     }
 
 
-    static getJSON(){
+    static getCurrentState(){
         return plasmid_json;
     }
 

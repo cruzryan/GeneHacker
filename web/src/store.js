@@ -6,7 +6,9 @@ export const current_screen = writable("EDITOR");
 
 export const editor_info = writable({
     split_window: true,
-    
+    show_filepicker: true,
+    show_menu: false,
+
     screen_on_top_showing: false,
     show_replace: false,
     show_goto: false,
@@ -20,7 +22,7 @@ export const editor_info = writable({
         name: "Yeast with milk",
         type: "plasmid",
         active: true,
-        data: ""
+        uuid: "AKTK"
     }]
     },
     right_panel: {

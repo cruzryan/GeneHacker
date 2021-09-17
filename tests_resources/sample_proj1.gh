@@ -1,7 +1,116 @@
 {
     "name": "Sars-Cov-2",
     "version": "1.0",
-    "inventory": {
-        
-    }
+    "inventory": [{
+            "name": "Sars-Cov-2 Findings",
+            "type": "text-editor",
+            "html": "<h1>Sars-Cov-2 Research</h1><p><br></p><p>We recently found that Sars-Cov-2 is made of 29,903 base pairs,</p><p>the spike protein is composed of the following CDS sequence:</p><p><br></p><p><br></p>",
+            "text": "Sars-Cov-2 Research\n\nWe recently found that Sars-Cov-2 is made of 29,903 base pairs,\nthe spike protein is composed of the following CDS sequence:\n\n\n"
+        },
+        {
+            "name": "Yeast with milk",
+            "type": "plasmid",
+            "data": {
+                "Locus": "       Exported                4040 bp ds-DNA     circular SYN 13-MAY-2021\r",
+                "Definition": "  low copy plasmid, neg. control.\r",
+                "Accession": "   .\r",
+                "Version": "     .\r",
+                "Keywords": "    BB3_arscen_URA3_Hygro\r",
+                "Source": "      synthetic DNA construct\r",
+                "Organism": "  synthetic DNA construct\r",
+                "References": [{
+                        "Authors": "",
+                        "Title": "     CexA\r",
+                        "Journal": "   Unpublished\r"
+                    },
+                    {
+                        "Authors": "   .\r",
+                        "Title": "     Direct Submission\r",
+                        "Journal": "   Exported May 13, 2021 from SnapGene Server 1.1.58\r"
+                    }
+                ],
+                "Features": [{
+                        "Kind": "source",
+                        "end": 4040,
+                        "mol_type": "\"other DNA\"\r\n",
+                        "organism": "\"synthetic DNA construct\"",
+                        "start": 1
+                    },
+                    {
+                        "Kind": "gene",
+                        "end": 1576,
+                        "label": "hphMX6",
+                        "note": "\"yeast selectable marker conferring hygromycin \r\n                     resistance\"\r\n",
+                        "start": 1
+                    },
+                    {
+                        "Kind": "promoter",
+                        "end": 344,
+                        "label": "TEF promoter",
+                        "note": "\"Ashbya gossypii TEF promoter\"\r\n",
+                        "start": 1
+                    },
+                    {
+                        "Kind": "CDS",
+                        "codon_start": "1",
+                        "end": 1373,
+                        "gene": "\"aph(4)-Ia\"",
+                        "label": "HygR",
+                        "note": "\"confers resistance to hygromycin\"",
+                        "product": "\"aminoglycoside phosphotransferase from E. coli\"",
+                        "start": 345,
+                        "translation": "\"MGKKPELTATSVEKFLIEKFDSVSDLMQLSEGEESRAFSFDVGGR\r\n                     GYVLRVNSCADGFYKDRYVYRHFASAALPIPEVLDIGEFSESLTYCISRRAQGVTLQDL\r\n                     PETELPAVLQPVAEAMDAIAAADLSQTSGFGPFGPQGIGQYTTWRDFICAIADPHVYHW\r\n                     QTVMDDTVSASVAQALDELMLWAEDCPEVRHLVHADFGSNNVLTDNGRITAVIDWSEAM\r\n                     FGDSQYEVANIFFWRPWLACMEQQTRYFERRHPELAGSPRLRAYMLRIGLDQLYQSLVD\r\n                     GNFDDAAWAQGRCDAIVRSGAGTVGRTQIARRSAAVWTDGCVEVLADSGNRRPSTRPRA\r\n                     KE\"\r\n"
+                    },
+                    {
+                        "Kind": "terminator",
+                        "end": 1576,
+                        "label": "TEF terminator",
+                        "note": "\"Ashbya gossypii TEF terminator\"\r\n",
+                        "start": 1379
+                    },
+                    {
+                        "Kind": "misc_feature",
+                        "end": 2091,
+                        "label": "CEN/ARS",
+                        "note": "\"S. cerevisiae CEN6 centromere fused to an \r\n                     autonomously replicating sequence\"\r\n",
+                        "start": 1588
+                    },
+                    {
+                        "Kind": "rep_origin",
+                        "direction": "LEFT",
+                        "end": 2742,
+                        "label": "ori",
+                        "note": "\"high-copy-number ColE1/pMB1/pBR322/pUC origin of \r\n                     replication\"\r\n",
+                        "start": 2154
+                    },
+                    {
+                        "Kind": "primer_bind",
+                        "end": 2253,
+                        "label": "pBR322ori-F",
+                        "note": "\"pBR322 origin, forward primer\"\r\n",
+                        "start": 2234
+                    },
+                    {
+                        "Kind": "promoter",
+                        "end": 3055,
+                        "gene": "\"S. cerevisiae URA3\"",
+                        "label": "URA3 promoter\r\n",
+                        "start": 2840
+                    },
+                    {
+                        "Kind": "CDS",
+                        "codon_start": "1",
+                        "end": 3859,
+                        "gene": "\"S. cerevisiae URA3\"",
+                        "label": "URA3",
+                        "note": "\"yeast auxotrophic marker, counterselectable with \r\n                     5-fluoroorotic acid (5-FOA)\"",
+                        "product": "\"orotidine-5'-phosphate decarboxylase, required \r\n                     for uracil biosynthesis\"",
+                        "start": 3056,
+                        "translation": "\"MSKATYKERAATHPSPVAAKLFNIMHEKQTNLCASLDVRTTKELL\r\n                     ELVEALGPKICLLKTHVDILTDFSMEGTVKPLKALSAKYNFLLFEDRKFADIGNTVKLQ\r\n                     YSAGVYRIAEWADITNAHGVVGPGIVSGLKQAAEEVTKEPRGLLMLAELSCKGSLATGE\r\n                     YTKGTVDIAKSDKDFVIGFIAQRDMGGRDEGYDWLIMTPGVGLDDKGDALGQQYRTVDD\r\n                     VVSTGSDIIIVGRGLFAKGRDAKVEGERYRKAGWEAYLRRCGQQN\"\r\n"
+                    }
+                ],
+                "DNA": "gacatggaggcccagaataccctccttgacagtcttgacgtgcgcagctcaggggcatgatgtgactgtcgcccgtacatttagcccatacatccccatgtataatcatttgcatccatacattttgatggccgcacggcgcgaagcaaaaattacggctcctcgctgcagacgtgcgagcagggaaacgctcccctcacagacgcgttgaattgtccccacgccgcgcccctgtagagaaatataaaaggttaggatttgccactgaggttcttctttcatatacttccttttaaaatcttgctaggatacagttctcacatcacatccgaacataaacaaccatgggtaaaaagcctgaactcaccgcgacgtctgtcgagaagtttctgatcgaaaagttcgacagcgtctccgacctgatgcagctctcggagggcgaagaatctcgtgctttcagcttcgatgtaggagggcgtggatatgtcctgcgggtaaatagctgcgccgatggtttctacaaagatcgttatgtttatcggcactttgcatcggccgcgctcccgattccggaagtgcttgacattggggaattcagcgagagcctgacctattgcatctcccgccgtgcacagggtgtcacgttgcaagacctccctgaaaccgaactgcccgctgttctgcagccggtcgcggaggccatggatgcgatcgctgcggccgatcttagccagacgagcgggttcggcccattcggaccgcaaggaatcggtcaatacactacatggcgtgatttcatatgcgcgattgctgatccccatgtgtatcactggcaaactgtgatggacgacaccgtcagtgcgtccgtcgcgcaggctctcgatgagctgatgctttgggccgaggactgccccgaagtccggcacctcgtgcacgcggatttcggctccaacaatgtcctgacggacaatggccgcataacagcggtcattgactggagcgaggcgatgttcggggattcccaatacgaggtcgccaacatcttcttctggaggccgtggttggcttgtatggagcagcagacgcgctacttcgagcggaggcatccggagcttgcaggatcgccgcggctccgggcgtatatgctccgcattggtcttgaccaactctatcagagcttggttgacggcaatttcgatgatgcagcttgggcgcagggtcgatgcgacgcaatcgtccgatccggagccgggactgtcgggcgtacacaaatcgcccgcagaagcgcggccgtctggaccgatggctgtgtagaagtactcgccgatagtggaaaccgacgccccagcactcgtccgagggcaaaggaataatcagtactgacaataaaaagattcttgttttcaagaacttgtcatttgtatagtttttttatattgtagttgttctattttaatcaaatgttagcgtgatttatattttttttcgcctcgacatcatctgcccagatgcgaagttaagtgcgcagaaagtaatatcatgcgtcaatcgtatgtgaatgctggtcgctatactggcttccttttcatcacgtgctataaaaataattataatttaaattttttaatataaatatataaattaaaaatagaaagtaaaaaaagaaattaaagaaaaaatagtttttgttttccgaagatgtaaaagactctagggggatcgccaacaaatactaccttttatcttgctcttcctgctctcaggtattaatgccgaattgtttcatcttgtctgtgtagaacaccacacacgaaaatcctgtgattttacattttacttatcgttaatcgaatgtatatctatttaatctgcttttcttgtctaataaatatatatgtaaagtacgctttttgttgaaattttttaaacctttgtttatttttttttcttcattccgtaactcttctaccttctttatttactttctaaaatccaaatacaaaacataaaaataaataaacacagagtaaattcccaaattattccatcattaaaagatacgaggcgcgtgtaagttacaggcaagcgatcgcgctgtgagcaaaaggccagcaaaaggccaggaaccgtaaaaaggccgcgttgctggcgtttttccataggctccgcccccctgacgagcatcacaaaaatcgacgctcaagtcagaggtggcgaaacccgacaggactataaagataccaggcgtttccccctggaagctccctcgtgcgctctcctgttccgaccctgccgcttaccggatacctgtccgcctttctcccttcgggaagcgtggcgctttctcatagctcacgctgtaggtatctcagttcggtgtaggtcgttcgctccaagctgggctgtgtgcacgaaccccccgttcagcccgaccgctgcgccttatccggtaactatcgtcttgagtccaacccggtaagacacgacttatcgccactggcagcagccactggtaacaggattagcagagcgaggtatgtaggcggtgctacagagttcttgaagtggtggcctaactacggctacactagaagaacagtatttggtatctgcgctctgctgaagccagttaccttcggaaaaagagttggtagctcttgatccggcaaacaaaccaccgctggtagcggtggtttttttgtttgcaagcagcagattacgcgcagaaaaaaaggatctcaagaagatcctttgatcttttctacggggtggagcgcaaaaaaccccgcccctgacagggcggggttttttcgcgatcggagcagggtccataaagcttttcaattcatctttttttttttattcttttttttgattccggtttccttgaaatttttttgattcggtaatctccgagcagaaggaagaacgaaggaaggagcacagacttagattggtatatatacgcatatgtagtgttgaagaaacatgaaattgcccagtattcttaacccaactgcacagaacaaaaacctgcaggaaacgaagataaatcatgtcgaaagctacatataaggaacgtgctgctactcatcctagtcctgttgctgccaagctatttaatatcatgcacgaaaagcaaacaaacttgtgtgcttcattggatgttcgtaccaccaaggaattactggagttagttgaagcattaggtcccaaaatttgtttactaaaaacacatgtggatatcttgactgatttttccatggagggcacagttaagccgctaaaggcattatccgccaagtacaattttttactcttcgaggacagaaaatttgctgacattggtaatacagtcaaattgcagtactctgcgggtgtatacagaatagcagaatgggcagacattacgaatgcacacggtgtggtgggcccaggtattgttagcggtttgaagcaggcggcggaagaagtaacaaaggaacctagaggccttttgatgttagcagaattgtcatgcaagggctccctagctactggagaatatactaagggtactgttgacattgcgaagagcgacaaagattttgttatcggctttattgctcaaagagacatgggtggaagagatgaaggttacgattggttgattatgacacccggtgtgggtttagatgacaagggagacgcattgggtcaacagtatagaaccgtggatgatgtggtgtctacaggatctgacattattattgttggaagaggactatttgcaaagggaagggatgctaaggtagagggtgaacgttacagaaaagcaggctgggaagcatatttgagaagatgcggccagcaaaactaaaaaactgtattataagtaaatgcatgtatactaaactcacaacttagagcttcaatttaattatatcagttattacccgggaatctcggcgctccggggaggcgtcttcggatccctcgaggaagacgccgctaattggaggcgtcttcggatccctcgaggaagacgccgctagctcatg"
+            }
+        }
+    ]
 }

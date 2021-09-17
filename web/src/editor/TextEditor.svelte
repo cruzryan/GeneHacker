@@ -5,6 +5,11 @@
 	
 	let content = { html: '', text: ''};
 	
+	function handleContentEditor(e){
+		content = e.detail
+		console.log(e.detail)
+	}
+
 </script>
 
 <svelte:head>
@@ -34,7 +39,7 @@
 </svelte:head>
 
 <main>
-  <div class="editor" use:quill={options} on:text-change={e => content = e.detail}/>
+  <div class="editor" use:quill={options} on:text-change={e => handleContentEditor(e)}/>
 </main>
 
 

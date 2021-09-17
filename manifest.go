@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/tc-hib/winres"
+	"github.com/tc-hib/winres/version"
 	"image"
 	"log"
 	"os"
-	"github.com/tc-hib/winres"
-	"github.com/tc-hib/winres/version"
 )
 
 func setup_syso() {

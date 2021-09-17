@@ -40,6 +40,11 @@ export class SequenceMap {
         h = height;
     }
 
+    static destroy(){
+        console.log("destroy called")
+        p5 = null;
+    }
+    
     //When we want to draw again
     static loop(){
         if(editorinfo.split_window) return;
@@ -55,8 +60,6 @@ export class SequenceMap {
 
     static goToFeature(feature_name){
         if(editorinfo.split_window) return;
-        console.log(editorinfo)
-        console.log(editorinfo.split_window)
         let ft = GeneAMA.getFeatures();
         for(let i = 0; i < ft.length; i++){
             if(ft[i].label == feature_name){

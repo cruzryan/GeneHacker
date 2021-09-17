@@ -1,4 +1,7 @@
 <script>
+
+	import ProjectManager from "../ProjectManager.js";
+
     export let key = 0;
     export let name = "";
     export let path = "";
@@ -12,10 +15,14 @@
             case 4: return "project teal";
         }
     }
-    
+
+    function openPath(){
+    	ProjectManager.openProject(path);
+    }
+
 </script>
 
-<div class={getColorClass(key)}>
+<div on:click={() => openPath()} class={getColorClass(key)}>
     <h1 class="project-letter">{name.charAt(0)}</h1>
     <h1 class="project-title">{name}</h1>
 </div>

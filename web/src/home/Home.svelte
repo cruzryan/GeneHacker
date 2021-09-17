@@ -1,12 +1,12 @@
 <script>
+	import ProjectManager from "../ProjectManager.js";
 	import Project from "./Project.svelte";
+
 	let gh_icon_monochrome = "./gh_icon_monochrome.png";
 
 	import { getData } from "../store";
 
-	let settings = JSON.parse(getData("settings"));
-	console.log(settings);
-
+	let settings = ProjectManager.getSettings()
 	let number_of_projs = settings.project_paths.length;
 
 </script>

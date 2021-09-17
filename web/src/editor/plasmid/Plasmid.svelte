@@ -7,6 +7,15 @@
 
   import { watchResize } from "svelte-watch-resize";
 
+  import ProjectManager from "../../ProjectManager";
+
+
+  export let src = {};
+
+  let new_src = Object.assign({}, src);
+  ProjectManager.loadNewPlasmid(new_src);
+
+
   let editorinfo;
 
   editor_info.subscribe(value => {
@@ -65,13 +74,15 @@
   };
  
   /*---------------- Circular Map -------------------------- */
-
+  let CM;
   let circularmap = (p5) => {
-    let CM = new CircularMap(p5, getLowestVal(w, h), getLowestVal(w, h));
+    CM = new CircularMap(p5, getLowestVal(w, h), getLowestVal(w, h));
 
     p5.setup = () => {
       let sz = getLowestVal(w, h);
       p5.createCanvas(sz, sz);
+      console.log("SETTING UP BROTHER [CIRCULAR]")
+
     };
 
     p5.draw = () => {
@@ -85,14 +96,15 @@
     p5.mousePressed = (e) => {
       CM.mouseClicked(e);
       p5.loop()
+      console.log("clicking")
     };
 
   };
 
   /*---------------- Sequence Map -------------------------- */
-
+  let SM;
   let sequencemap = (p5) => {
-    let SM = new SequenceMap(p5, getLowestVal(w, h), getLowestVal(w, h))
+    SM = new SequenceMap(p5, getLowestVal(w, h), getLowestVal(w, h))
 
     p5.setup = () => {
       let sz = getLowestVal(w, h);
@@ -121,17 +133,35 @@
 
   }
 
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
+
+  let cm, sm;
+
+  let root;
 
   onMount(function () {
-    let cm = new p5(circularmap, "circularmap");
+    cm = new p5(circularmap, "circularmap");
 
     if(editorinfo.split_window === false){
-      let sm = new p5(sequencemap, "sequencemap");
+      sm = new p5(sequencemap, "sequencemap");
     }
 
+    console.log("MOUNTED")
   });
 
+
+  onDestroy(function(){
+    const removeElements = (elms) => elms.forEach(el => el.remove());
+    removeElements( document.querySelectorAll(".canvtracker") );
+
+    CircularMap.destroy()
+    SequenceMap.destroy()
+
+    cm = null;
+    CM = null;
+    sm = null;
+    SM = null;
+  })
 
   /*----------- COPY -------------*/
   function copySequence(){
@@ -351,8 +381,8 @@
 
 </script>
 
-<main>
-  <div  use:watchResize={handleResize} bind:clientWidth={w} bind:clientHeight={h}  id="circularmap" class="main-canvas"></div>
+<main bind:this={root}>
+  <div  use:watchResize={handleResize} bind:clientWidth={w} bind:clientHeight={h}  id="circularmap" class="main-canvas canvtracker"></div>
   {#if editorinfo.split_window == false}
   <div class="right-side">
     <div class="tooltip">
@@ -394,7 +424,7 @@
       </div>
 
     </div>
-    <div id="sequencemap" class="second-canvas"></div>
+    <div id="sequencemap" class="second-canvas canvtracker"></div>
   </div>
   {/if}
 

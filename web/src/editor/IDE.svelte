@@ -17,14 +17,13 @@
 
 	editor_info.subscribe(value => {
 		editorinfo = value;
-    left_tab = editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab];
 	});
 
-  //TEST DATA: TO-DO: REMOVE THIS
-  let sq_data = getData("getTestPlasmid");
-  new GeneAMA(sq_data);
-
-  console.log(GeneAMA.getFeatures())
+  function isPlasmidTab(){
+      if(editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab] == undefined) return false;
+      if(editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab].type == "plasmid") return true;
+      return false;
+  }
 </script>
 
 <main>
@@ -43,23 +42,38 @@
   <div class="windows">
     <div class="window">
       <div class="tabs hide-native-scrollbar">
-        <Tab active={true} text={left_tab.name} icon_type={left_tab.type} />
+        {#each editorinfo.left_panel.tabs as t, i}
+          <Tab id={i} panel="left" active={editorinfo.activePanel == "left" && editorinfo.activeTab == i} text={t.name} icon_type={t.type} />
+        {/each}
+
+        {#if editorinfo.left_panel.tabs.length == 0}
+          <Tab active={true} text="Empty Tab" icon_type="empty" />
+        {/if}
       </div>
 
       <div class="panel">
-        {#if left_tab.type == "plasmid"}
-        <Plasmid />
+        {#if editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab] != undefined && editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab].type == "plasmid"}
+          <Plasmid src={editorinfo.current_project.inventory[editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab].uuid]}/>
         {/if}
+
+        
       </div>
     </div>
+
     {#if editorinfo.split_window == true}
     <div class="window">
       <div class="tabs hide-native-scrollbar">
-        <Tab text="Sars-Cov-2 Findings" icon_type="lab" />
+        {#each editorinfo.right_panel.tabs as t, i}
+          <Tab id={i} panel="right" active={editorinfo.activePanel == "right" && editorinfo.activeTab == i} text={t.name} icon_type={t.type} />
+        {/each}
+
+        {#if editorinfo.right_panel.tabs.length == 0}
+          <Tab active={false} text="Empty Tab" icon_type="empty" />
+        {/if}
       </div>
 
       <div class="panel">
-        <TextEditor/>
+        <!-- <TextEditor/> -->
       </div>
     </div>
     {/if}

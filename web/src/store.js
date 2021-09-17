@@ -2,10 +2,10 @@ import { writable } from 'svelte/store';
 
 
 //Possible screens: "HOME", "EDITOR"
-export const current_screen = writable("EDITOR");
+export const current_screen = writable("HOME");
 
 export const editor_info = writable({
-    split_window: true,
+    split_window: false,
     show_filepicker: true,
     show_menu: false,
 
@@ -15,15 +15,15 @@ export const editor_info = writable({
     show_insert: false,
     show_new_feature: false,
 
+    current_project: {},
+
+    //Active tabs
+    activeTab: 0,
+    activePanel: "left",
 
     left_panel: {
-    current_tab: 0,
-    tabs: [{
-        name: "Yeast with milk",
-        type: "plasmid",
-        active: true,
-        uuid: "AKTK"
-    }]
+        current_tab: 0,
+        tabs: []
     },
     right_panel: {
         current_tab: 0,
@@ -41,6 +41,3 @@ export function getData(type){
     } catch (error) {
     }
 }
-
-
-// export const split_window = writable(false);

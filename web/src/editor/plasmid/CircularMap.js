@@ -54,6 +54,11 @@ export class CircularMap {
         this.calculateArrows()
     }
 
+    static destroy(){
+        console.log("destroy called")
+        p5 = null;
+        self = null;
+    }
 
     static updateSequence(newSequence) {
         sequence = newSequence;
@@ -531,6 +536,7 @@ export class CircularMap {
     }
 
     calculateArrows() {
+        allArrows = []
         let features = GeneAMA.getFeatures()
         features.forEach(f => {
 

@@ -2,3 +2,5 @@
 /web/public/build/
 
 /web/.DS_Store
+
+/static/

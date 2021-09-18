@@ -11,7 +11,7 @@
 	});
 
 	export let left = 100;
-	export let top = 100;
+	export let top = 200;
 	
 	let moving = false;
 	
@@ -78,6 +78,18 @@
 		ProjectManager.createNewTab(i)
 	}
 
+	function addNewItem(){
+
+		let item = {
+			name: "Unnamed lab",
+			type: "text-editor",
+			html: "",
+			text: "",
+		}
+
+		ProjectManager.addItemToInventory(item);
+	}
+
 	let fileinput;
 
 	const onFileSelected = (e) =>{
@@ -111,7 +123,7 @@
 				</svg>
 				</div>
 				<!-- ADD -->
-				<div class="icon tool-icon">
+				<div on:click={addNewItem} class="icon tool-icon">
 				<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 				</svg>
@@ -274,8 +286,8 @@
 	}
 
 	.icon{
-		height: 15px;
-        width: 15px;
+		height: 15px !important;
+        width: 15px !important;
 	}
 
 	.file-icon{
@@ -292,6 +304,11 @@
 
     .tool-icon:hover, .ham:hover{
     	transform: scale(1.2);
+    }
+
+    *{
+		user-select: none;
+    	-webkit-user-select: none;
     }
 
 </style>

@@ -7,6 +7,7 @@
     3. Locates primers etc
 */
 
+import ProjectManager from "../ProjectManager";
 
 let plasmid = {};
 let self;
@@ -20,7 +21,7 @@ export class GeneAMA{
     }
 
     static getCurrentState(){
-        return plasmid_json;
+        return plasmid;
     }
 
     static loadNewData(data){
@@ -42,7 +43,8 @@ export class GeneAMA{
     }
 
     static updateFeatures(features){
-        plasmid.Features = Object.assign({}, features);
+        plasmid.Features = features;
+        ProjectManager.savePlasmidOnStore()
     }
 
     static addFeature(start, end, label){
@@ -52,10 +54,12 @@ export class GeneAMA{
             start, end, label
         }
         plasmid.Features.push(f);
+        ProjectManager.savePlasmidOnStore()
     }
 
     static updateSequence(newSequence){
-        plasmid.DNA = newSequence;        
+        plasmid.DNA = newSequence;  
+        ProjectManager.savePlasmidOnStore()      
     }
 
     //Returns an array of feature datas;

@@ -1,11 +1,11 @@
 <script>
     import ProjectManager from "../ProjectManager";
-
     export let icon_type = "";
     export let text = "";
     export let active = false;
     export let id = null;
     export let panel = null;
+    export let key = null;
 
     function close(){
         if(id == null) return;
@@ -19,7 +19,7 @@
 
 </script>
 
-<div on:click={setActive} class={active? "tab tab-active" : "tab tab-inactive"}>
+<div key={key} on:click={setActive} class={active? "tab tab-active" : "tab tab-inactive"}>
     {#if icon_type == "plasmid"}
     <div class="tab-icon">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="#767C89">
@@ -110,5 +110,10 @@
         font-size: 12px;
         width: 70%;
         color: #767C89;
+    }
+
+    *{
+        user-select: none;
+        -webkit-user-select: none;
     }
 </style>

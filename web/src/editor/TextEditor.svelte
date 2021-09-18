@@ -1,60 +1,50 @@
 <script>
-	import { quill } from 'svelte-quill'
+  	import { onMount, onDestroy } from "svelte";
 	
-	let options = { placeholder: "", theme:"snow"}
-	
-	let content = { html: '', text: ''};
-	
+	export let inventory_id = 0;
+
+	import { editor_info } from "../store";
+	let editorinfo;
+	editor_info.subscribe(value => {
+		editorinfo = value;
+	});
+
 	function handleContentEditor(e){
-		content = e.detail
-		console.log(e.detail)
+		let new_editinfo = editorinfo;
+   		new_editinfo.current_project.inventory[inventory_id].html = e.detail;
+    	editor_info.set(new_editinfo)   
 	}
+
+   import Editor from "cl-editor/src/Editor.svelte"
+   let editor
+
+   $: html2 = editorinfo.current_project.inventory[inventory_id].html
+   onMount(() => {
+	   	$: html2, editor.setHtml(html2)
+   })
+
+   function hack(){
+   		if(editor != undefined){
+   			if(editor.getHtml() != html2){
+   				editor.setHtml(html2, 1)
+   			}
+   		}
+   }
+
+	$: html2, hack()
 
 </script>
 
-<svelte:head>
-	<link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-	<style>
-			div .ql-toolbar{
-				/*background-color: blueviolet !important;*/
-				border:  none !important;
-				margin-top: 1em;
-				margin-left: 1em;
-			}
-
-			div .ql-editor{
-				-webkit-user-select: all !important;
-				user-select: all !important;
-				margin-left: 1em;
-				/*background-color: red !important;*/
-			}
-
-			div .ql-snow .ql-editor pre.ql-syntax {
-  	  	background-color: #f8f8f8 !important;
-	    	color: #0d0d0d !important;
-    		overflow: visible !important;
-			}
-
-	</style>
-</svelte:head>
-
 <main>
-  <div class="editor" use:quill={options} on:text-change={e => handleContentEditor(e)}/>
+<Editor bind:this={editor} html={html2} 
+ actions={["h1", "h2", "b", "i", "strike", "ul", "left", "center", "justify", "undo", "redo"]} on:change={(evt)=> handleContentEditor(evt)}/>
 </main>
-
-
 <style>
 
 	main{
 		width:  100%;
 		height:  100%;
 	}
-
-	.editor{
-		width:  100%;
-		height:  100%;
-	}
-
 	*{
 		border: none !important;
 	}

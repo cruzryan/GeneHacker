@@ -17,8 +17,49 @@
     }
 
     function openPath(){
+    	updateProj(path,name)
     	ProjectManager.openProject(path);
     }
+
+	import { editor_info } from "../store";
+	let editorinfo;
+	editor_info.subscribe(value => {
+		editorinfo = value;
+	});
+
+	function updateProj(path, name){
+		let new_editinfo = {
+
+			name: name,
+		    project_path: path,
+		
+		    split_window: false,
+		    show_filepicker: true,
+		    show_menu: false,
+		
+		    screen_on_top_showing: false,
+		    show_replace: false,
+		    show_goto: false,
+		    show_insert: false,
+		    show_new_feature: false,
+		
+		    current_project: {},
+		
+		    //Active tabs
+		    activeTab: 0,
+		    activePanel: "left",
+		
+		    left_panel: {
+		        current_tab: 0,
+		        tabs: []
+		    },
+		    right_panel: {
+		        current_tab: 0,
+		        tabs: []
+		    }
+		};
+    	editor_info.set(new_editinfo) 
+	}
 
 </script>
 

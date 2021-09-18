@@ -8,6 +8,9 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
+	"path/filepath"
+	"github.com/sqweek/dialog"
 )
 
 var (
@@ -103,7 +106,9 @@ func returnTestPlasmid(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	plas_data := getFileData("tests_resources\\addgeneplasmid.gbk")
+	// plas_data := getFileData("tests_resources\\addgeneplasmid.gbk")
+	plas_data := getFileData("tests_resources\\sars-cov-2.gbk")
+
 	plasmid_str := getAsString(plas_data)
 
 	fmt.Fprintf(w, "%s\n", plasmid_str)
@@ -126,8 +131,116 @@ func open(url string) error {
     return exec.Command(cmd, args...).Start()
 }
 
+//Turning gbk into json then b64 at localhost:6969/save?data=[...]
+//Where data is structured this way:  file_path::new_file
+func save(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-func setup_go_server() {
+	data_64 := strings.Replace(r.URL.Query().Get("data")," ","+",100);
+	data, err := b64.StdEncoding.DecodeString(data_64)
+	check(err)
+	
+	data_str := string(data)
+
+	file_path := ""
+	json_data := ""
+
+	load_data := false
+
+	for i := 0; i < len(data_str); i++ {
+
+		if(load_data == false){
+			if(string(data_str[i]) != "|"){
+				file_path += string(data_str[i])
+			}
+		}else{
+			json_data += string(data_str[i])
+		}
+
+		
+		if(string(data_str[i]) == "|"){
+			load_data = true;
+			continue
+		}
+
+ 	}
+
+	json_data_b64 := b64.StdEncoding.EncodeToString([]byte(json_data))
+
+
+	f, err := os.OpenFile(file_path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	check(err)
+	if err := os.Truncate(file_path, 0); err != nil {
+		check(err)
+	}
+	_, err = f.Write([]byte(json_data_b64))
+	check(err)
+	f.Close()
+
+	fmt.Fprintf(w, "\nDone!")
+}
+
+func newProjLocation(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	file, err := dialog.File().Title("Save As").Filter("GeneHacker", ".gh").Save()
+	check(err)
+	fmt.Fprintf(w, file)
+}
+
+
+//saves & creates folders at localhost:6969/saveAs?data=[data]
+func saveAs(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	data_64 := strings.Replace(r.URL.Query().Get("data")," ","+",100);
+	data, err := b64.StdEncoding.DecodeString(data_64)
+	check(err)
+	
+	data_str := string(data)
+
+	file_path := ""
+	json_data := ""
+
+	load_data := false
+
+	for i := 0; i < len(data_str); i++ {
+
+		if(load_data == false){
+			if(string(data_str[i]) != "|"){
+				file_path += string(data_str[i])
+			}
+		}else{
+			json_data += string(data_str[i])
+		}
+
+		
+		if(string(data_str[i]) == "|"){
+			load_data = true;
+			continue
+		}
+
+ 	}
+	dir := filepath.Dir(file_path)
+ 	os.MkdirAll(dir, os.ModePerm)
+
+	json_data_b64 := b64.StdEncoding.EncodeToString([]byte(json_data))
+
+	f, err := os.OpenFile(file_path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	check(err)
+	if err := os.Truncate(file_path, 0); err != nil {
+		check(err)
+	}
+	_, err = f.Write([]byte(json_data_b64))
+	check(err)
+	f.Close()
+
+	fmt.Fprintf(w, "\nDone!")
+}
+
+func setup_backend_server() {
 
 	//Server API
 	http.HandleFunc("/settings", returnSettings)
@@ -135,8 +248,12 @@ func setup_go_server() {
 	http.HandleFunc("/proj", returnProject)
 	http.HandleFunc("/getTestPlasmid", returnTestPlasmid)
 	http.HandleFunc("/gbk", gbk_b64)
+	http.HandleFunc("/save", save)
+	http.HandleFunc("/saveAs", saveAs)
+	http.HandleFunc("/loc", newProjLocation)
+
 	fmt.Println("Server started!")
-	// open("http://localhost:5000")
+	open("http://localhost:4040")
 	//Nice
 	http.ListenAndServe(":6969", nil)
 }

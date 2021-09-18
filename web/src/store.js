@@ -1,10 +1,13 @@
 import { writable } from 'svelte/store';
 
-
 //Possible screens: "HOME", "EDITOR"
 export const current_screen = writable("HOME");
 
 export const editor_info = writable({
+
+    project_path: "",
+    name: "",
+
     split_window: false,
     show_filepicker: true,
     show_menu: false,

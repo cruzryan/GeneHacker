@@ -24,6 +24,17 @@
       if(editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab].type == "plasmid") return true;
       return false;
   }
+
+
+  let menuIndex = 0;
+  function showMenu(index){
+    menuIndex = index;
+
+    let new_editinfo = editorinfo;
+    new_editinfo.show_menu = true;
+    editor_info.set(new_editinfo)  
+  }
+
 </script>
 
 <main>
@@ -31,19 +42,19 @@
     <FilePicker/>
   {/if}
   <div class="menubar">
-    <h1 class="menubar-item">FILE</h1>
-    <h1 class="menubar-item">VIEW</h1>
-    <h1 class="menubar-item">HELP</h1>
+    <h1 class="menubar-item" on:click={() => showMenu(0)}>FILE</h1>
+    <h1 class="menubar-item" on:click={() => showMenu(1)}>VIEW</h1>
+    <h1 class="menubar-item" on:click={() => showMenu(2)}>HELP</h1>
   </div>
   {#if editorinfo.show_menu == true}
-    <Menu/>
+    <Menu key={menuIndex}/>
   {/if}
 
   <div class="windows">
     <div class="window">
       <div class="tabs hide-native-scrollbar">
         {#each editorinfo.left_panel.tabs as t, i}
-          <Tab id={i} panel="left" active={editorinfo.activePanel == "left" && editorinfo.activeTab == i} text={t.name} icon_type={t.type} />
+          <Tab key={i} id={i} panel="left" active={editorinfo.activePanel == "left" && editorinfo.activeTab == i} text={t.name} icon_type={t.type} />
         {/each}
 
         {#if editorinfo.left_panel.tabs.length == 0}
@@ -56,8 +67,10 @@
           <Plasmid src={editorinfo.current_project.inventory[editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab].uuid]}/>
         {/if}
 
-        
-      </div>
+        {#if editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab] != undefined && editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab].type == "text-editor"}
+          <TextEditor inventory_id={editorinfo.left_panel.tabs[editorinfo.left_panel.current_tab].uuid}/>
+        {/if}
+      </div >
     </div>
 
     {#if editorinfo.split_window == true}

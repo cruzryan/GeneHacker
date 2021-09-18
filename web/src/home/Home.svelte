@@ -9,6 +9,49 @@
 	let settings = ProjectManager.getSettings()
 	let number_of_projs = settings.project_paths.length;
 
+	import { editor_info } from "../store";
+	let editorinfo;
+	editor_info.subscribe(value => {
+		editorinfo = value;
+	});
+
+	let showSaveDialog = false;
+	let name_input = "";
+	let authors_input = "";
+	let location = "";
+
+	function cancel(){
+		showSaveDialog = false;
+		name_input = "";
+		authors_input = "";
+		location = "";
+	}
+
+	function pickLocation(){
+		console.log("Picking location")
+		let path = getData("loc");
+		location = path + ".gh"
+	}
+
+	function saveAs(){
+		let settings = ProjectManager.getSettings()
+		let ns = settings;
+		settings.project_paths.push({name: name_input, path: location})
+
+		let settings_b64 = window.btoa(unescape(encodeURIComponent( JSON.stringify(settings) )));
+		getData("update?settings="+settings_b64);
+
+		let project = {
+			name: name_input,
+			authors: authors_input,
+			inventory: []
+		}
+		let data = window.btoa(unescape(encodeURIComponent( location + "|" + JSON.stringify(project) )));
+		getData("saveAs?data="+data);
+		ProjectManager.openProject(location)
+		cancel()
+	}
+
 </script>
 
 <main>
@@ -57,7 +100,7 @@
 		</div>
 
 		<div class="projects-list">
-			<div class="project project-new">
+			<div on:click={() => showSaveDialog = true} class="project project-new">
 				<h1 class="project-letter">+</h1>
 				<h1 class="project-title">New Project</h1>
 			</div>
@@ -68,15 +111,105 @@
 		</div>
 	</div>
 
+
+	{#if showSaveDialog}
+	<div class="save">
+		<div class="container">
+			<h1>New project</h1>
+			<input bind:value={name_input} placeholder="Project name..." />
+			<input bind:value={authors_input} placeholder="Authors..." />
+			<button on:click={pickLocation} class={location != ""? "location" : ""}>Pick location</button>
+
+			<div class="buttons">
+				<button on:click={cancel} class="cancelbtn">Cancel</button>
+				<button on:click={saveAs} class="savebtn">Save</button>
+			</div>
+		</div>
+	</div>
+	{/if}
+
 </main>
 
 <style>
 
 	main {
-
 		display: flex;
 		flex-direction: row;
+	}
 
+	.save{
+		width:  100vw;
+		height:  100vh;
+		position: absolute;
+		display:  flex;
+		align-items:  center;
+		justify-content: center;
+	}
+
+	button{
+		border:  2px solid rgba(51, 51, 51, 0.7);
+		font-size: 15px;
+		padding:  0.25em 1em;
+		/*border-radius: 40px;*/
+		background-color: white;
+		color:  rgba(51, 51, 51, 0.9);
+		margin-left: 2vw;
+		margin-top: 1.2em;
+		cursor:  pointer;
+	}
+
+	.buttons{
+		display:  flex;
+		flex-direction: row;
+		align-items: center;
+		width:  100%;
+	}
+
+	.savebtn{
+		border:  2px solid #4479FF;
+		background-color: #4479FF;
+		color:  white;
+	}
+
+	.location{
+		border:  2px solid #4479FF;
+		color:  #4479FF;
+	}
+
+	.cancelbtn{
+		margin-right: 5em;
+	}
+
+	.container{
+		width:  300px;
+		height: 300px;
+		background-color: white;
+		border: 1px solid rgba(51, 51, 51, 0.1) !important;
+	}
+
+	.container h1{
+		font-size: 22px;
+		margin-top: 1em;
+		margin-left: 2vw;
+		margin-bottom: 0.5em;
+		opacity: 0.8;
+	}
+
+	.container input{
+		margin-left: 2vw;
+		margin-top: 1em;
+		padding:  0.5em;
+		width:  80%;
+		box-shadow: none;
+		border-radius: 0px;
+		border:  none;
+		border-bottom: 2px solid rgba(51, 51, 51, 0.5);
+	}
+
+	.container input:focus{
+		outline:  none;
+		padding-bottom: 0.7em;
+		border-bottom: 2px solid rgba(51, 51, 51, 0.9);
 	}
 
 	.sidebar{

@@ -6,7 +6,6 @@ current_screen.subscribe(value => {current_screen_value = value;});
 import {GeneAMA} from "./editor/GeneAMA";
 
 import { editor_info } from "./store";
-
 let editorinfo;
 editor_info.subscribe(value => {
 	editorinfo = value;
@@ -21,8 +20,8 @@ export default class ProjectManager{
 
 	constructor(){
 		/*FOR DEBUGGING PURPOSES*/
-		let p0 = this.constructor.getSettings().project_paths[0];
-		this.constructor.openProject(p0.path)
+		// let p0 = this.constructor.getSettings().project_paths[0];
+		// this.constructor.openProject(p0.path)
 
 		new GeneAMA({});
 	}
@@ -83,7 +82,14 @@ export default class ProjectManager{
 	}
 
 	static changeItemName(index, name){
+		let new_editinfo = editorinfo;
 		currentProject.inventory[index].name = name;
+		//TO-DO: Fix this for right panel too
+		for(let i = 0; i < new_editinfo.left_panel.tabs.length; i++){
+			if(new_editinfo.left_panel.tabs[i].uuid == index){
+				new_editinfo.left_panel.tabs[i].name = name;
+			}
+		}
 		this.updateStore()
 	}
 
@@ -140,6 +146,17 @@ export default class ProjectManager{
 			}
 		}
     	editor_info.set(new_editinfo)   
+	}
+
+	static savePlasmidOnStore(){
+		let state = GeneAMA.getCurrentState();
+		//If state is not empty then update the store 
+		if(Object.keys(state).length != 0){
+			let new_editinfo = editorinfo;
+			let item = new_editinfo.current_project.inventory[new_editinfo.left_panel.tabs[new_editinfo.left_panel.current_tab].uuid];
+			item.data = state;
+    		editor_info.set(new_editinfo)   
+		} 
 	}
 
 	static loadNewPlasmid(plasmid){

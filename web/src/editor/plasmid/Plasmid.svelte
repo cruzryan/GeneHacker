@@ -11,10 +11,19 @@
 
 
   export let src = {};
+  $: src, loadNew()
 
-  let new_src = Object.assign({}, src);
-  ProjectManager.loadNewPlasmid(new_src);
+  let prevsrc = {};
 
+  function loadNew(){
+    if(JSON.stringify(prevsrc) === JSON.stringify(src)){
+      return;
+    }else{
+      prevsrc = Object.assign({}, src);
+      let new_src = Object.assign({}, src);
+      ProjectManager.loadNewPlasmid(new_src);  
+    }
+  }
 
   let editorinfo;
 
@@ -22,12 +31,20 @@
 		editorinfo = value;
 	});
 
+  $: editorinfo, handleResize()
+
   let w;
   let h;
 
   function handleResize(node){
-    CircularMap.resize(w,h);
-    SequenceMap.resize(w,h);
+    try{
+      CircularMap.resize(w,h);
+      SequenceMap.resize(w,h);
+      CircularMap.loop()
+      SequenceMap.loop()
+    }catch(e){
+
+    }
   }
 
   function getLowestVal(v1, v2) {
@@ -81,8 +98,6 @@
     p5.setup = () => {
       let sz = getLowestVal(w, h);
       p5.createCanvas(sz, sz);
-      console.log("SETTING UP BROTHER [CIRCULAR]")
-
     };
 
     p5.draw = () => {
@@ -94,9 +109,12 @@
 
     // reset board when mouse is pressed
     p5.mousePressed = (e) => {
+      try{
       CM.mouseClicked(e);
       p5.loop()
-      console.log("clicking")
+      }catch(e){
+
+      }
     };
 
   };
@@ -121,16 +139,22 @@
 
 // reset board when mouse is pressed
     p5.mousePressed = (e) => {
-      // p5.resizeCanvas(getLowestVal(w, h), getLowestVal(w, h));
+      try{
       SM.mouseClicked(e);
       p5.loop()
+      }catch(e){
+
+      }
     };
 
     p5.mouseWheel = (e) => {
+      try{
       let dir = e.delta < 0? "up" : "down";
       SM.scroll(dir)
-    }
+      }catch(e){
 
+      }
+    }
   }
 
   import { onMount, onDestroy } from "svelte";
@@ -145,8 +169,10 @@
     if(editorinfo.split_window === false){
       sm = new p5(sequencemap, "sequencemap");
     }
+    
+    CircularMap.resize(w,h);
+    SequenceMap.resize(w,h);
 
-    console.log("MOUNTED")
   });
 
 
@@ -382,7 +408,7 @@
 </script>
 
 <main bind:this={root}>
-  <div  use:watchResize={handleResize} bind:clientWidth={w} bind:clientHeight={h}  id="circularmap" class="main-canvas canvtracker"></div>
+  <div use:watchResize={handleResize} bind:clientWidth={w} bind:clientHeight={h}  id="circularmap" class="main-canvas canvtracker"></div>
   {#if editorinfo.split_window == false}
   <div class="right-side">
     <div class="tooltip">

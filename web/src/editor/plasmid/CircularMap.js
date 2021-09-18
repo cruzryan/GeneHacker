@@ -101,6 +101,7 @@ export class CircularMap {
     }
 
     static loop(){
+        try {
         sequence = GeneAMA.getSequence()
         allArrows = []
         lvl0 = []
@@ -108,6 +109,9 @@ export class CircularMap {
         lvl2 = []
         self.calculateArrows()
         p5.loop();
+        }catch(e){
+
+        }
     }
 
     static resize(newWidth, newHeight) {

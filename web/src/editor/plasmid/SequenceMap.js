@@ -263,6 +263,7 @@ export class SequenceMap {
             case "A": return "#EFD581";
             case "X": return "#f08080";
             case "0": return "#fff";
+            default: console.log("Error getting codon color")
         }
     }
 

@@ -8,7 +8,7 @@
   import { watchResize } from "svelte-watch-resize";
 
   import ProjectManager from "../../ProjectManager";
-
+  import Optimizer from "./Optimizer.svelte";
 
   export let src = {};
   $: src, loadNew()
@@ -163,6 +163,11 @@
 
   let root;
 
+  $: outerWidth = 0
+  $: innerWidth = 0
+  $: outerHeight = 0
+  $: innerHeight = 0
+
   onMount(function () {
     cm = new p5(circularmap, "circularmap");
 
@@ -170,8 +175,9 @@
       sm = new p5(sequencemap, "sequencemap");
     }
     
-    CircularMap.resize(w,h);
-    SequenceMap.resize(w,h);
+    // CircularMap.resize(innerWidth/2,innerHeight);
+    // SequenceMap.resize(innerWidth/2,innerHeight);
+    // console.log("DEF: ", Math.floor(innerWidth/2), innerHeight)
 
   });
 
@@ -405,8 +411,15 @@
     }
   }
 
-</script>
+  function openOpti(){
+    let new_editinfo = editorinfo;
+    new_editinfo.show_optimizer = true;
+    new_editinfo.screen_on_top_showing = true;
+    editor_info.set(new_editinfo)
+  }
 
+</script>
+<svelte:window bind:innerWidth bind:outerWidth bind:innerHeight bind:outerHeight />
 <main bind:this={root}>
   <div use:watchResize={handleResize} bind:clientWidth={w} bind:clientHeight={h}  id="circularmap" class="main-canvas canvtracker"></div>
   {#if editorinfo.split_window == false}
@@ -498,9 +511,14 @@
   {#if editorinfo.show_insert == true}
     <Insert/>
   {/if}
-
-
   <textarea bind:value={copyval} bind:this={textarea} class="copyarea"></textarea>
+
+  {#if editorinfo.show_optimizer == true}
+    <Optimizer/>
+  {/if}
+
+
+  <button on:click={openOpti} class="optibutton">Optimize</button>
 
 </main>
 
@@ -515,6 +533,26 @@
     overflow: hidden;
   }
 
+  .optibutton{
+    position: absolute;
+    left: calc(25vw - 57.5px);
+    top: 90vh;
+    /*border:  1px solid black;*/
+    border-radius: 20px;
+    font-size: 13px;
+    z-index: 6;
+    padding: 0.25em 0em;
+    width: 115px;
+    background-color: white;
+    color: rgba(0, 0, 0, 0.8);
+    border:  none;
+    border: 1px solid rgba(51, 51, 51, 0.1);
+    cursor: pointer
+  }
+
+  .optibutton:hover{
+    transform: scale(1.05);
+  }
 
   .copyarea{
     position: absolute;
@@ -585,12 +623,14 @@
 
   .main-canvas{
     width: 100%;
+    width:  50vw !important;
     height: 100%;
   }
 
   .second-canvas{
     width:  100%;
-    height:  100%;
+    width:  50vw !important;
+    height:  85vh !important;
   }
 
   .right-side{
@@ -600,8 +640,7 @@
 
   .tooltip{
     width:  100%;
-    height:  10vh;
-    margin-top: 15vh;
+    height:  15vh;
     /*margin-bottom: -5%;*/
     display:  flex;
     flex-direction: row;

@@ -3,7 +3,9 @@ import {current_screen} from "./store";
 let current_screen_value;
 current_screen.subscribe(value => {current_screen_value = value;});
 
+
 import {GeneAMA} from "./editor/GeneAMA";
+import { CircularMap } from "./editor/plasmid/CircularMap";
 
 import { editor_info } from "./store";
 let editorinfo;
@@ -20,8 +22,8 @@ export default class ProjectManager{
 
 	constructor(){
 		/*FOR DEBUGGING PURPOSES*/
-		// let p0 = this.constructor.getSettings().project_paths[0];
-		// this.constructor.openProject(p0.path)
+		let p0 = this.constructor.getSettings().project_paths[0];
+		this.constructor.openProject(p0.path)
 
 		new GeneAMA({});
 	}
@@ -32,7 +34,6 @@ export default class ProjectManager{
 		let settings_json = this.b64_to_utf8(settings_b64);
 
 		settings = JSON.parse(settings_json)
-		console.log(settings)
 		return settings;
 	}
 
@@ -161,6 +162,7 @@ export default class ProjectManager{
 
 	static loadNewPlasmid(plasmid){
 		GeneAMA.loadNewData(plasmid.data);
+		CircularMap.loop();
 	}
 
 	static b64_to_utf8( str ) {

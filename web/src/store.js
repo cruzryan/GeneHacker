@@ -11,6 +11,7 @@ export const editor_info = writable({
     split_window: false,
     show_filepicker: true,
     show_menu: false,
+    show_optimizer: false,
 
     screen_on_top_showing: false,
     show_replace: false,

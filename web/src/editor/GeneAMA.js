@@ -26,6 +26,17 @@ export class GeneAMA{
 
     static loadNewData(data){
         plasmid = Object.assign({}, data);
+        let c = 0;
+        plasmid.Features.forEach(f => {
+            if(f.Kind == "CDS" && f.label == undefined){
+                if(c==0){
+                    f.label = "source";
+                }else{
+                    f.label = "ORF" + c.toString()
+                }
+                c++;
+            }
+        })
     }
 
     static getFeatures(){
@@ -35,7 +46,6 @@ export class GeneAMA{
 
     static getSequence(){
         return plasmid.DNA
-        // return plasmid.DNA;
     }
 
     static getName(){

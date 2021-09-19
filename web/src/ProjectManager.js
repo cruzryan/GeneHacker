@@ -22,8 +22,8 @@ export default class ProjectManager{
 
 	constructor(){
 		/*FOR DEBUGGING PURPOSES*/
-		let p0 = this.constructor.getSettings().project_paths[0];
-		this.constructor.openProject(p0.path)
+		// let p0 = this.constructor.getSettings().project_paths[0];
+		// this.constructor.openProject(p0.path)
 
 		new GeneAMA({});
 	}
